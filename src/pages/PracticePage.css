@@ -1,0 +1,203 @@
+.practice-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-page);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--page-padding-mobile);
+  background: var(--bg-page);
+  border-bottom: 1px solid var(--border-light);
+}
+
+@media (min-width: 768px) {
+  .header {
+    padding: var(--spacing-lg) var(--page-padding-desktop);
+  }
+}
+
+.header h1 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl) var(--page-padding-mobile);
+  gap: var(--spacing-xl);
+}
+
+@media (min-width: 768px) {
+  .content {
+    padding: var(--spacing-xxl) var(--page-padding-desktop);
+  }
+}
+
+.practice-card {
+  width: 100%;
+  max-width: 480px;
+  padding: var(--spacing-xl);
+  background: var(--bg-page);
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: var(--shadow-card);
+}
+
+.song-name {
+  font-size: 14px;
+  color: var(--text-primary, #111);
+  margin-bottom: var(--spacing-md);
+  font-weight: 700;
+}
+
+.lyric-line {
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1.4;
+  margin-bottom: var(--spacing-lg);
+  color: var(--text-primary);
+}
+
+.annotation {
+  font-size: 15px;
+  color: var(--text-secondary);
+  padding: var(--spacing-md);
+  background: var(--bg-elevated);
+  border-radius: 10px;
+  line-height: 1.5;
+}
+
+.note-input {
+  width: 100%;
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--bg-page);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-size: 15px;
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+  transition: border-color 0.2s ease;
+}
+
+.note-input::placeholder {
+  color: var(--text-secondary);
+}
+
+.speed-control {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.speed-control span {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.speed-buttons {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+/* .speed-buttons button 样式继承 .btn-text 全局类 */
+
+.loop-control {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.loop-control span {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.loop-buttons {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+/* .loop-buttons button 样式继承 .btn-text 全局类 */
+
+.loop-counter {
+  font-size: 14px;
+  color: var(--primary);
+  text-align: center;
+  font-weight: 500;
+}
+
+.progress-bar {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.progress-bar input[type="range"] {
+  flex: 1;
+  height: 4px;
+  -webkit-appearance: none;
+  background: var(--border-light);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.progress-bar input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  background: var(--text-primary);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.practice-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-lg);
+}
+
+.play-btn {
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, transform 0.15s;
+}
+
+.source-btn {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: rgba(0, 113, 227, 0.1);
+  color: var(--primary);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.source-btn:hover {
+  background: rgba(0, 113, 227, 0.15);
+}

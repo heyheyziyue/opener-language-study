@@ -1,0 +1,365 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ===== 禁止全站水平滚动（移动端防左右拖动） ===== */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+#root {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* 媒体元素不允许超出容器（防止长图 / 视频撑出视口） */
+img, video, audio, iframe, svg {
+  max-width: 100%;
+}
+
+:root {
+  /* Apple Colors */
+  --text-primary: #1d1d1f;
+  --text-secondary: #6e6e73;
+  --bg-page: #FFFFFF;
+  --bg-elevated: #f5f5f7;
+  --border-light: #e8e8ed;
+  --border-medium: #d2d2d7;
+  --primary: #0071e3;
+  --success: #34c759;
+  --danger: #ff3b30;
+
+  /* Spacing */
+  --spacing-xs: 8px;
+  --spacing-sm: 12px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 40px;
+  --spacing-xxl: 64px;
+
+  /* Layout */
+  --max-width: 1200px;
+  --page-padding-mobile: 20px;
+  --page-padding-desktop: 40px;
+
+  /* Typography */
+  --font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --line-height-body: 1.5;
+  --line-height-heading: 1.2;
+
+  /* Shadows - extremely subtle */
+  --shadow-card: 0 8px 20px rgba(0,0,0,0.02), 0 2px 4px rgba(0,0,0,0.02);
+  --shadow-card-hover: 0 12px 24px rgba(0,0,0,0.04), 0 4px 8px rgba(0,0,0,0.03);
+}
+
+body {
+  font-family: var(--font-family);
+  background: var(--bg-page);
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: var(--line-height-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: var(--line-height-heading);
+  color: var(--text-primary);
+}
+
+h1 { font-size: 48px; }
+h2 { font-size: 36px; }
+h3 { font-size: 28px; }
+h4 { font-size: 22px; }
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-light);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-medium);
+}
+
+/* Links & Buttons */
+a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+input, textarea, select {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Range inputs (progress bar / volume slider) — 移除拖拽和聚焦时的外框/高亮 */
+input[type="range"] {
+  outline: none;
+}
+
+input[type="range"]::-moz-focus-outer {
+  border: 0;
+}
+
+input[type="range"]:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+input[type="range"]::-webkit-slider-thumb:active,
+input[type="range"]::-webkit-slider-thumb:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Utility Classes */
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--page-padding-mobile);
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding: 0 var(--page-padding-desktop);
+  }
+}
+
+/* Primary Button - outlined style */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: var(--bg-page);
+  color: var(--text-primary);
+  border: 1px solid var(--border-medium);
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  border-color: var(--text-primary);
+  text-decoration: none;
+}
+
+.btn-primary:active {
+  background: var(--bg-elevated);
+}
+
+/* Secondary Button - text style */
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: transparent;
+  color: var(--primary);
+  border: none;
+  font-size: 16px;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.btn-secondary:hover {
+  color: var(--text-primary);
+  text-decoration: underline;
+}
+
+/* Card */
+.card {
+  background: var(--bg-page);
+  border-radius: 12px;
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-card-hover);
+}
+
+/* Section spacing */
+.section {
+  padding: var(--spacing-xl) 0;
+}
+
+@media (min-width: 768px) {
+  .section {
+    padding: var(--spacing-xxl) 0;
+  }
+}
+
+/* BottomNav 播放按钮 — 强制重置,排除任何背景/边框/轮廓/阴影 */
+button.playback-btn,
+button.playback-btn:hover,
+button.playback-btn:active,
+button.playback-btn:focus {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* 通用透明播放按钮 — 应用到所有页面的播放/暂停按钮,确保无背景无边框 */
+.transparent-play-btn {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-primary, #111) !important;
+  transition: color 0.15s, transform 0.15s;
+}
+
+.transparent-play-btn:focus,
+.transparent-play-btn:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.transparent-play-btn:hover {
+  color: var(--primary);
+}
+
+.transparent-play-btn:active {
+  background: transparent !important;
+  color: var(--primary);
+  transform: scale(0.92);
+}
+
+/* ===== 全站统一按钮样式 ===== */
+
+/* 全局 Header：标题绝对居中，按钮分居两侧且可点击 */
+.header {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.header h1 {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-primary, #111);
+  white-space: nowrap;
+  max-width: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.header > div,
+.header > .header-actions,
+.header > .select-all-btn,
+.header > .btn-text {
+  position: relative;
+  z-index: 1;
+  margin-left: auto;
+}
+
+/* 返回按钮：40x40 透明容器，容纳粗线条 SVG 箭头 */
+.back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  border-radius: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: var(--text-primary, #111);
+  transition: opacity 0.15s;
+}
+
+/* 全站 Header 左侧 Logo — 24px 高，宽度自适应 */
+.header-logo {
+  height: 24px;
+  width: auto;
+  display: block;
+  flex-shrink: 0;
+  margin-right: 4px;
+}
+
+.back-btn:hover {
+  opacity: 0.7;
+}
+
+/* 文字按钮：默认白底黑字 → 悬停浅灰 → 激活黑底白字 */
+.btn-text {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-page, #fff);
+  color: var(--text-primary, #111);
+  border: 1px solid var(--border-light, #e8e8ed);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.btn-text:hover {
+  background: var(--bg-elevated, #f5f5f7);
+}
+
+.btn-text:active,
+.btn-text.active {
+  background: var(--text-primary, #111);
+  color: var(--bg-page, #fff);
+  border-color: var(--text-primary, #111);
+}
+
+.btn-text:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

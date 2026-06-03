@@ -1,0 +1,161 @@
+.upload-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-page);
+  padding: var(--spacing-md) 16px;
+}
+
+@media (min-width: 768px) {
+  .upload-page {
+    padding: var(--spacing-lg) 16px;
+  }
+}
+
+.header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  padding: var(--spacing-xl) 0;
+}
+
+.header h1 {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  margin-top: var(--spacing-sm);
+  font-size: 15px;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  max-width: none;
+  margin: 0;
+  width: 100%;
+}
+
+.upload-card {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+  background: var(--bg-page);
+  border-radius: 16px;
+  padding: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.drop-zone {
+  border: 2px dashed var(--border-medium);
+  border-radius: 12px;
+  padding: var(--spacing-xxl);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.drop-zone:hover {
+  border-color: var(--primary);
+  background: rgba(0, 113, 227, 0.03);
+}
+
+.drop-zone.has-file {
+  border-color: #111;
+  border-style: solid;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.drop-zone-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--text-secondary);
+}
+
+.drop-zone-content svg {
+  color: var(--primary);
+}
+
+.file-selected {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: #111;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.file-selected span {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+/* .change-btn 样式继承 .btn-text 全局类 */
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.form-group input,
+.form-group textarea {
+  padding: var(--spacing-md);
+  background: var(--bg-page);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-size: 16px;
+  resize: vertical;
+  transition: border-color 0.2s ease;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: var(--text-secondary);
+}
+
+/* .start-btn 样式继承 .btn-text.active 全局类 */
+
+.bottom-nav {
+  display: flex;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg) 0;
+}
+
+.bottom-nav button {
+  flex: 1;
+  padding: var(--spacing-md);
+  background: var(--bg-elevated);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.bottom-nav button:hover {
+  background: var(--border-light);
+}

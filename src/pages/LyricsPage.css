@@ -1,0 +1,1062 @@
+.lyrics-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-page);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--page-padding-mobile);
+  background: var(--bg-page);
+  border-bottom: 1px solid var(--border-light);
+}
+
+@media (min-width: 768px) {
+  .header {
+    padding: var(--spacing-lg) var(--page-padding-desktop);
+  }
+}
+
+.header h1 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.settings-btn {
+  padding: var(--spacing-sm);
+  background: transparent;
+  color: var(--text-primary);
+  border-radius: 8px;
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+}
+
+.settings-btn:hover {
+  background: var(--bg-elevated);
+}
+
+.song-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.song-info h1 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.song-info p {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* 歌曲信息居中(放在播放器上方/歌词列表上方) */
+.song-info-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--spacing-lg) var(--page-padding-mobile) var(--spacing-md);
+  background: var(--bg-page);
+}
+
+@media (min-width: 768px) {
+  .song-info-center {
+    padding: var(--spacing-xl) var(--page-padding-desktop) var(--spacing-md);
+  }
+}
+
+.song-info-center .song-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary, #111);
+  margin: 0 0 6px 0;
+  line-height: 1.3;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.song-info-center .favorite-count {
+  font-size: 0.9rem;
+  color: var(--text-secondary, #666);
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-shrink: 0;
+}
+
+/* .translate-all-btn 样式已统一为 .btn-text（见 index.css） */
+
+/* Player */
+.player {
+  padding: var(--spacing-lg) var(--page-padding-mobile);
+  background: var(--bg-page);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  border-bottom: 1px solid var(--border-light);
+}
+
+@media (min-width: 768px) {
+  .player {
+    padding: var(--spacing-xl) var(--page-padding-desktop);
+  }
+}
+
+.player-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+}
+
+.player-controls button {
+  padding: 14px;
+  background: var(--text-primary);
+  color: var(--bg-page);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s ease;
+}
+
+.player-controls button:hover {
+  opacity: 0.8;
+}
+
+/* 播放器播放按钮 — 强制深色,确保在白底上可见 */
+.player-controls .transparent-play-btn {
+  color: var(--text-primary, #111) !important;
+  background: transparent !important;
+}
+
+.player-controls .transparent-play-btn:hover {
+  color: var(--text-primary, #111) !important;
+  background: transparent !important;
+}
+
+.progress-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.progress-bar input[type="range"] {
+  flex: 1;
+  height: 4px;
+  -webkit-appearance: none;
+  background: var(--border-light);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.progress-bar input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  background: var(--text-primary);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.volume {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--text-secondary);
+}
+
+.volume input[type="range"] {
+  width: 100px;
+  height: 4px;
+  -webkit-appearance: none;
+  background: var(--border-light);
+  border-radius: 2px;
+}
+
+.volume input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  background: var(--text-primary);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* Progress & Volume Wrapper */
+.progress-volume-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-top: var(--spacing-md);
+  gap: var(--spacing-md);
+}
+
+.progress-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 90%;
+  max-width: 500px;
+  gap: var(--spacing-sm);
+}
+
+.progress-container.progress-bar {
+  flex: unset;
+}
+
+.progress-container input[type="range"] {
+  flex: 1;
+}
+
+.volume-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  width: 70%;
+  max-width: 300px;
+}
+
+.volume-container input[type="range"] {
+  display: block;
+  width: 100%;
+  min-width: 80px;
+  margin: 0 auto;
+}
+
+/* Lyrics Header */
+.lyrics-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-md) var(--page-padding-mobile);
+  background: var(--bg-page);
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+@media (min-width: 768px) {
+  .lyrics-header {
+    padding: var(--spacing-md) var(--page-padding-desktop);
+  }
+}
+
+/* .add-line-btn 样式已统一为 .btn-text（见 index.css） */
+
+/* Add Line Form */
+.add-line-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--page-padding-mobile);
+  background: var(--bg-page);
+  border-bottom: 1px solid var(--border-light);
+}
+
+@media (min-width: 768px) {
+  .add-line-form {
+    padding: var(--spacing-md) var(--page-padding-desktop);
+  }
+}
+
+.add-line-form .add-line-textarea {
+  width: 100%;
+  padding: var(--spacing-sm);
+  background: var(--bg-page);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 1.5;
+  resize: vertical;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.add-line-form-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  justify-content: flex-end;
+}
+
+/* Lyrics List */
+.lyrics-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-md) var(--page-padding-mobile);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+@media (min-width: 768px) {
+  .lyrics-list {
+    padding: var(--spacing-lg) var(--page-padding-desktop);
+  }
+}
+
+/* Guide Card — 使用指南卡片（可关闭 + ? 按钮重新打开） */
+.guide-card {
+  position: relative;
+  margin: 0 var(--page-padding-mobile) var(--spacing-md);
+  padding: var(--spacing-lg);
+  background: var(--bg-page);
+  border-left: 3px solid var(--text-primary);
+  border-radius: 8px;
+}
+
+.guide-close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  border-radius: 6px;
+  padding: 0;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.guide-close-btn:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.guide-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-md) 0;
+  padding-right: 32px; /* 避免标题与关闭按钮重叠 */
+}
+
+.guide-section {
+  margin-bottom: var(--spacing-sm);
+}
+
+.guide-section:last-child {
+  margin-bottom: 0;
+}
+
+.guide-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 2px 0;
+}
+
+.guide-section-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .guide-card {
+    margin-left: var(--page-padding-desktop);
+    margin-right: var(--page-padding-desktop);
+  }
+}
+
+/* Lyric Item */
+.lyric-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--bg-page);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, background 0.2s ease;
+  flex-wrap: wrap;
+}
+
+.lyric-item:hover {
+  background: var(--bg-elevated);
+}
+
+/* 选中态：整行黑底，文字白色 */
+.lyric-item.selected {
+  background: #111 !important;
+  outline: none !important;
+}
+
+.lyric-item.selected .line-text {
+  color: #fff !important;
+  font-weight: 600;
+}
+
+.lyric-item.clipping {
+  background: #fef2f2;
+  outline: 1px solid #fecaca;
+}
+
+/* 收藏按钮：行首 28x28 透明按钮 */
+.favorite-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 6px;
+  flex-shrink: 0;
+  padding: 0;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.favorite-btn:hover {
+  color: #111;
+  background: var(--bg-elevated);
+}
+
+/* 选中态：心形按钮变为白色 */
+.lyric-item.selected .favorite-btn {
+  color: #fff;
+}
+
+.lyric-item.selected .favorite-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* 选中态：实心心形原为 #111，在黑底上看不见，强制改为白色 */
+.lyric-item.selected .favorite-btn svg[fill="#111"] {
+  fill: #fff !important;
+}
+
+/* Scissor Button — 截取按钮（与心形同款，仅在非选择模式显示） */
+.clip-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 6px;
+  flex-shrink: 0;
+  transition: color 0.15s, background 0.15s;
+}
+
+.clip-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+}
+
+/* 截取中状态：红色高亮提示当前正在截取这一行 */
+.clip-btn.clipping {
+  color: #d32f2f;
+}
+
+.clip-btn.clipping:hover {
+  color: #d32f2f;
+  background: rgba(211, 47, 47, 0.08);
+}
+
+.lyric-item.selected .clip-btn.clipping {
+  color: #ff8a80;
+}
+
+.lyric-item.selected .clip-btn {
+  color: #fff;
+}
+
+.lyric-item.selected .clip-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.line-text {
+  flex: 1;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  text-align: center;
+  min-width: 0;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
+.has-note {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* 截取状态徽章：作为 flex 子项，靠右排列，不收缩避免与歌词文本重叠 */
+.clip-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: inherit;
+  font-weight: inherit;
+  background: transparent;
+  border: none;
+  padding: 0;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.clip-badge.clipped {
+  font-weight: inherit;
+}
+
+/* 截取中：徽章内含"截取中..."文字 + "完成"按钮，flex 布局防重叠 */
+.clip-badge.clipping {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  color: inherit;
+  pointer-events: auto;
+}
+
+.clipping-text {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.clipping-complete-btn {
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: opacity 0.2s ease;
+}
+
+.clipping-complete-btn:hover {
+  opacity: 0.8;
+}
+
+/* 选中态（黑底）：完成按钮反色为白底黑字，保持可读 */
+.lyric-item.selected .clipping-complete-btn {
+  background: #fff;
+  color: #111;
+}
+
+/* 选中态：行变黑 → 徽章也变白 */
+.lyric-item.selected .clip-badge,
+.lyric-item.selected.active .clip-badge {
+  color: #fff;
+  font-weight: inherit;
+}
+
+/* 批量勾选态：同样黑底白字 */
+.lyric-item.selected-line .clip-badge {
+  color: #fff;
+  font-weight: inherit;
+}
+
+/* .finish-clip-btn 样式已统一为 .btn-text.active（见 index.css） */
+
+.edit-btn {
+  padding: 6px;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: 6px;
+  opacity: 0;
+  transition: opacity 0.2s, color 0.2s ease;
+}
+
+.lyric-item:hover .edit-btn {
+  opacity: 1;
+}
+
+.edit-btn:hover {
+  color: var(--primary);
+  background: var(--bg-elevated);
+}
+
+/* Inline Progress — 单独播放内联控制区（独立行，不在 lyric-item 内） */
+.inline-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 8px 0 8px 44px;  /* 左侧 44px 留出心形按钮的空间 */
+  margin: 0;
+  background: transparent;
+  border: none;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.inline-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.inline-progress .transparent-play-btn {
+  width: 32px;
+  height: 32px;
+  color: var(--text-primary);
+}
+
+.inline-progress input[type="range"] {
+  flex: 1;
+  height: 4px;
+  -webkit-appearance: none;
+  background: var(--border-light);
+  border-radius: 2px;
+  outline: none;
+}
+
+.inline-progress input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  background: var(--text-primary);
+  border: 2px solid var(--bg-page);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.inline-progress .time-current,
+.inline-progress .time-total {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  min-width: 38px;
+  text-align: center;
+}
+
+.inline-loop-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.loop-buttons-inline {
+  display: flex;
+  gap: 4px;
+}
+
+.loop-buttons-inline button {
+  padding: 2px 8px;
+  font-size: 12px;
+  border-radius: 4px;
+  background: var(--bg-page);
+  color: var(--text-primary);
+  border: 1px solid var(--border-light);
+  transition: all 0.15s;
+  cursor: pointer;
+}
+
+.loop-buttons-inline button.active {
+  background: var(--text-primary);
+  color: var(--bg-page);
+  border-color: var(--text-primary);
+}
+
+/* Edit Form */
+.lyric-item.editing {
+  background: var(--bg-elevated);
+  outline: 2px solid #111;
+  outline-offset: -2px;
+  flex-wrap: wrap;
+  padding: var(--spacing-md);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.edit-form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.edit-text {
+  width: 100%;
+  padding: var(--spacing-sm);
+  background: var(--bg-page);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 1.5;
+  resize: none;
+}
+
+.edit-timestamps {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.timestamp-input {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.timestamp-input label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.timestamp-input input {
+  padding: var(--spacing-sm);
+  background: var(--bg-page);
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+/* .timestamp-adjust-btn 样式已统一为 .btn-text（见 index.css） */
+
+.edit-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+/* Clip Progress Bar */
+.clip-progress-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: 13px;
+  color: var(--primary);
+  padding: var(--spacing-sm);
+  background: rgba(0, 113, 227, 0.05);
+  border-radius: 8px;
+  margin-top: var(--spacing-sm);
+}
+
+.clip-progress-bar input[type="range"] {
+  flex: 1;
+  height: 3px;
+  -webkit-appearance: none;
+  background: var(--border-medium);
+  border-radius: 2px;
+}
+
+.clip-progress-bar input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 10px;
+  height: 10px;
+  background: var(--primary);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* Action Modal / Sheet */
+.action-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 200;
+}
+
+.action-sheet {
+  background: var(--bg-page);
+  border-radius: 16px 16px 0 0;
+  width: 100%;
+  max-width: 400px;
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.action-line {
+  padding: var(--spacing-md);
+  background: var(--bg-elevated);
+  border-radius: 8px;
+  font-size: 15px;
+  text-align: center;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-sm);
+}
+
+/* .action-sheet 按钮已统一为 .btn-text（见 index.css） */
+
+/* Settings */
+.settings-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md);
+  background: var(--bg-elevated);
+  border-radius: 8px;
+}
+
+.settings-item select {
+  padding: var(--spacing-sm);
+  background: var(--bg-page);
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+/* Favorited Badge */
+.favorited-badge {
+  display: flex;
+  align-items: center;
+  color: var(--text-primary, #111);
+}
+
+/* Header Actions */
+.lyrics-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+/* .batch-fav-btn 样式已统一为 .btn-text.active（见 index.css） */
+
+/* Select Mode */
+.lyric-item.selectable {
+  cursor: pointer;
+}
+
+/* 批量勾选态：与 selected 保持一致，黑底白字，序号保持黑色 + 半透明白底 */
+.lyric-item.selected-line {
+  background: #111 !important;
+  outline: none !important;
+}
+
+.lyric-item.selected-line .line-text {
+  color: #fff !important;
+}
+
+.select-checkbox {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-page);
+  border: 1px solid var(--border-medium);
+  border-radius: 6px;
+  font-size: 13px;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.select-checkbox.checked {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+/* 自动高亮态：仅加粗文字，不改色 */
+.lyric-item.active .line-text {
+  font-weight: 700;
+}
+
+/* Loop Control Inline */
+.loop-control-inline {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: rgba(0, 113, 227, 0.05);
+  border-radius: 8px;
+  margin-top: var(--spacing-sm);
+}
+
+.loop-counter-inline {
+  font-size: 13px;
+  color: var(--primary);
+  text-align: center;
+}
+
+/* Edit Timeline Inline (percent-based, draggable) */
+.edit-timeline-inline {/* Edit Timeline Inline (percent-based, draggable) */
+.edit-timeline-inline {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  background: var(--bg-page);
+  border-radius: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.edit-timeline-editor {
+  flex: 1;
+  position: relative;
+  height: 28px;
+  user-select: none;
+}
+
+.timeline-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 4px;
+  background: var(--border-light);
+  border-radius: 2px;
+}
+
+.timeline-range {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 6px;
+  background: var(--text-primary);
+  border-radius: 3px;
+  cursor: grab;
+  z-index: 1;
+}
+
+.timeline-range:active {
+  cursor: grabbing;
+}
+
+.timeline-handle {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  background: var(--text-primary);
+  border: 2px solid var(--bg-page);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  cursor: ew-resize !important;
+  z-index: 2;
+  transition: transform 0.15s ease;
+}
+
+.timeline-handle:hover {
+  transform: translate(-50%, -50%) scale(1.25);
+}
+
+.timeline-handle:active {
+  cursor: ew-resize !important;
+}
+
+/* Translation row — 独立翻译行，样式与歌词行联动但不可交互 */
+.translation-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 16px 8px 16px;
+  background: transparent;
+  border-radius: 0;
+  cursor: default;
+  user-select: none;
+  transition: background 0.2s, color 0.2s;
+}
+
+.translation-row .line-text {
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+/* 歌词行选中时，紧跟的翻译行同步变黑 */
+.lyric-item.selected + .translation-row {
+  background: #111;
+}
+
+.lyric-item.selected + .translation-row .line-text {
+  color: #fff;
+  font-weight: 500;
+}
+
+/* 同时选中+激活时保持同步 */
+.lyric-item.selected.active + .translation-row {
+  background: #111;
+}
+
+.lyric-item.selected.active + .translation-row .line-text {
+  color: #fff;
+  font-weight: 700;
+}
+
+/* Clip Bar 样式已移除 — 截取操作改为剪刀按钮自身状态切换 */
+
+/* Bottom Nav */
+.bottom-nav {
+  display: flex;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--page-padding-mobile);
+  background: var(--bg-page);
+  border-top: 1px solid var(--border-light);
+}
+
+.bottom-nav button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.bottom-nav button:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.bottom-nav button.active {
+  background: var(--text-primary);
+  color: var(--bg-page);
+}

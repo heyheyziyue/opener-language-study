@@ -1,0 +1,265 @@
+.dictation-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-page);
+}
+
+.dictation-page .header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--page-padding-mobile);
+  background: var(--bg-page);
+  border-bottom: 1px solid var(--border-light);
+}
+
+@media (min-width: 768px) {
+  .dictation-page .header {
+    padding: var(--spacing-lg) var(--page-padding-desktop);
+  }
+}
+
+.dictation-page .header h1 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.dictation-page .content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-xl) 16px;
+}
+
+.dictation-page .content.empty {
+  justify-content: center;
+  text-align: center;
+  color: var(--text-secondary);
+  gap: var(--spacing-md);
+}
+
+.dictation-page .content.empty p {
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.dictation-page .content.empty span {
+  font-size: 15px;
+}
+
+/* 歌词卡片 */
+.dictation-card {
+  width: 100%;
+  max-width: 480px;
+  padding: var(--spacing-xl);
+  background: var(--bg-page);
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: var(--shadow-card);
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--spacing-md);
+}
+
+.dictation-card .song-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary, #111);
+}
+
+.dictation-card .lyric-text {
+  font-size: 22px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.lyric-mask {
+  background: var(--bg-elevated);
+  border-radius: 8px;
+  height: 60px;
+  width: 100%;
+}
+
+/* 速度 / 循环 / 进度条 复用 PracticePage 样式 */
+.speed-control,
+.loop-control {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.speed-control span,
+.loop-control span {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.speed-buttons,
+.loop-buttons {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+/* 进度条 */
+.progress-bar {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.progress-bar input[type="range"] {
+  flex: 1;
+  height: 4px;
+  -webkit-appearance: none;
+  background: var(--border-light);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.progress-bar input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  background: var(--text-primary);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* 播放按钮 */
+.dictation-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.dictation-controls .play-btn {
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, transform 0.15s;
+}
+
+.dictation-controls .playback-nav-btn {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  transition: color 0.15s, transform 0.15s;
+}
+
+.dictation-controls .playback-nav-btn:hover {
+  color: var(--text-secondary);
+}
+
+.dictation-controls .playback-nav-btn:active {
+  transform: scale(0.92);
+}
+
+/* 循环计数 */
+.loop-counter {
+  width: 100%;
+  max-width: 480px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* 输入区 */
+.input-area {
+  width: 100%;
+  max-width: 480px;
+}
+
+.dictation-input {
+  width: 100%;
+  padding: var(--spacing-md);
+  background: var(--bg-page);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-size: 15px;
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+}
+
+.dictation-input::placeholder {
+  color: var(--text-secondary);
+}
+
+/* 操作按钮 */
+.action-buttons {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  gap: var(--spacing-sm);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* 对比结果区 */
+.diff-hint {
+  width: 100%;
+  max-width: 480px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-align: left;
+}
+
+.diff-section {
+  width: 100%;
+  max-width: 480px;
+  padding: 0;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.diff-words {
+  font-size: 17px;
+  line-height: 1.8;
+  word-break: break-word;
+}
+
+.diff-word.correct {
+  color: var(--text-primary);
+}
+
+.diff-word.wrong {
+  color: #d32f2f;
+}
+
+.diff-word.missing {
+  color: #d32f2f;
+  border-bottom: 2px solid #d32f2f;
+}
+
+.diff-word.extra {
+  color: #d32f2f;
+  text-decoration: line-through;
+}

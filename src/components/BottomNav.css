@@ -1,0 +1,158 @@
+.bottom-nav {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-page);
+  border-top: 1px solid var(--border-light);
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+.playback-section {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--page-padding-mobile);
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-light);
+}
+
+@media (min-width: 768px) {
+  .playback-section {
+    padding: var(--spacing-md) var(--page-padding-desktop);
+  }
+}
+
+.playback-controls {
+  display: flex;
+  gap: var(--spacing-xs);
+  flex-shrink: 0;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.seek-slider {
+  -webkit-appearance: none;
+  width: 60px;
+  height: 3px;
+  background: var(--border-light);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.seek-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 10px;
+  height: 10px;
+  background: var(--text-primary);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.playback-time {
+  font-size: 13px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.playback-btn {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  color: var(--text-primary, #111);
+  transition: color 0.15s, transform 0.15s;
+}
+
+.playback-btn:focus,
+.playback-btn:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.playback-btn:hover {
+  color: var(--primary);
+}
+
+.playback-btn:active {
+  background: transparent !important;
+  color: var(--primary);
+  transform: scale(0.92);
+}
+
+/* BottomNav 播放控制区 — 强制深色,确保可见 */
+.playback-controls .transparent-play-btn,
+.playback-btn.transparent-play-btn {
+  color: var(--text-primary, #111) !important;
+  background: transparent !important;
+}
+
+.playback-controls .transparent-play-btn:hover,
+.playback-btn.transparent-play-btn:hover {
+  color: var(--primary) !important;
+  background: transparent !important;
+}
+
+/* 前后微调按钮 — 比主播放按钮略小，形成主次关系 */
+.skip-btn {
+  width: 36px !important;
+  height: 36px !important;
+}
+
+.nav-buttons {
+  display: flex;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--page-padding-mobile);
+  padding-bottom: calc(var(--spacing-md) + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 768px) {
+  .nav-buttons {
+    padding: var(--spacing-md) var(--page-padding-desktop);
+    padding-bottom: calc(var(--spacing-md) + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+.nav-buttons button {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: var(--spacing-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.nav-buttons button:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.nav-buttons button.active {
+  color: var(--primary);
+}
+
+.nav-buttons button.active svg {
+  transform: scale(1.05);
+}
+
+.nav-buttons button span {
+  font-size: 11px;
+}
