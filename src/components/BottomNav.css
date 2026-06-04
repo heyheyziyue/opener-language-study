@@ -178,3 +178,30 @@
     font-size: 12px;
   }
 }
+
+/* ===== 移动端专属（≤767px）：删除进度条+时间，腾空间给 3 个导航按钮 =====
+   - 用户偏好：mobile 上进度条用 ±2s 微调键代替；时间歌词页已有
+   - 桌面端（≥768px）完全不受影响，保留原布局
+   - 播放区点击导航到歌词页的功能保留（padding 边距 8px 仍可点） */
+@media (max-width: 767px) {
+  /* 隐藏进度条和时间（保留元素在 DOM，便于日后还原） */
+  .bottom-nav .seek-slider,
+  .bottom-nav .playback-time {
+    display: none;
+  }
+  /* 播放区按内容宽度收缩，不再 flex:1 占满 */
+  .bottom-nav .playback-section {
+    flex: 0 0 auto;
+    padding: 0 8px;
+    gap: 4px;
+  }
+  /* 导航区占满剩余空间，按钮均分 */
+  .bottom-nav .nav-buttons {
+    flex: 1;
+  }
+  .bottom-nav .nav-buttons button {
+    flex: 1 1 0;
+    padding: 0 12px;
+    font-size: 14px;
+  }
+}
