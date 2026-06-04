@@ -13,7 +13,7 @@ function App() {
     <AudioProvider>
       <BrowserRouter>
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-          <div style={{ flex: 1, paddingBottom: '140px' }}>
+          <div style={{ flex: 1 }}>
             <Routes>
               <Route path="/" element={<Navigate to="/library" replace />} />
               <Route path="/upload" element={<UploadPage />} />

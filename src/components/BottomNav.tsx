@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAudio } from "../lib/audioContext";
 import { useSeekDuration } from "../lib/settings";
@@ -10,9 +10,29 @@ export default function BottomNav() {
   const location = useLocation();
   const { state, toggle, seek } = useAudio();
   const [seekDuration] = useSeekDuration();
+  const navRef = useRef<HTMLDivElement>(null);
 
   const { song, currentTime, duration, isPlaying } = state;
   const currentPath = location.pathname;
+
+  // 测量底部导航栏实际高度，写到 :root 的 CSS 变量上，
+  // 让页面内容区用 padding-bottom: var(--bottom-nav-height) 自动避让，避免被固定定位的导航栏遮挡
+  useEffect(() => {
+    const el = navRef.current;
+    if (!el) return;
+    const updateHeight = () => {
+      const h = el.getBoundingClientRect().height;
+      document.documentElement.style.setProperty("--bottom-nav-height", `${h}px`);
+    };
+    updateHeight();
+    const ro = new ResizeObserver(updateHeight);
+    ro.observe(el);
+    window.addEventListener("resize", updateHeight);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", updateHeight);
+    };
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -65,7 +85,7 @@ export default function BottomNav() {
   };
 
   return (
-    <div className="bottom-nav">
+    <div className="bottom-nav" ref={navRef}>
       {song && (
         <div className="playback-section" onClick={() => navigate(`/lyrics/${song.id}`)}>
           <div className="playback-controls">

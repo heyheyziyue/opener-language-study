@@ -20,6 +20,23 @@ img, video, audio, iframe, svg {
   max-width: 100%;
 }
 
+/* 全站页面统一用 CSS 变量约束高度，留出底部导航栏空间，避免内容被 fixed 导航栏遮挡。
+   padding-bottom 等于 nav 高度，作为内容底部"缓冲带"，让最底部的按钮能滚动到 nav 上方完整可见 */
+.library-page,
+.favorites-page,
+.lyrics-page,
+.practice-page,
+.upload-page,
+.dictation-page {
+  height: calc(100vh - var(--bottom-nav-height, 60px));
+  min-height: calc(100vh - var(--bottom-nav-height, 60px));
+  padding-bottom: var(--bottom-nav-height, 60px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
 :root {
   /* Apple Colors */
   --text-primary: #1d1d1f;
@@ -28,6 +45,9 @@ img, video, audio, iframe, svg {
   --bg-elevated: #f5f5f7;
   --border-light: #e8e8ed;
   --border-medium: #d2d2d7;
+
+  /* 底部导航栏高度（由 BottomNav 组件动态测量后写入） */
+  --bottom-nav-height: 60px;
   --primary: #0071e3;
   --success: #34c759;
   --danger: #ff3b30;
@@ -150,31 +170,6 @@ input[type="range"]::-webkit-slider-thumb:focus {
   .container {
     padding: 0 var(--page-padding-desktop);
   }
-}
-
-/* Primary Button - outlined style */
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 12px 24px;
-  background: var(--bg-page);
-  color: var(--text-primary);
-  border: 1px solid var(--border-medium);
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.btn-primary:hover {
-  border-color: var(--text-primary);
-  text-decoration: none;
-}
-
-.btn-primary:active {
-  background: var(--bg-elevated);
 }
 
 /* Secondary Button - text style */
@@ -337,7 +332,7 @@ button.playback-btn:focus {
   justify-content: center;
   background: var(--bg-page, #fff);
   color: var(--text-primary, #111);
-  border: 1px solid var(--border-light, #e8e8ed);
+  border: none;
   border-radius: 8px;
   padding: 8px 16px;
   font-size: 14px;
@@ -345,7 +340,7 @@ button.playback-btn:focus {
   cursor: pointer;
   user-select: none;
   white-space: nowrap;
-  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  transition: background 0.2s, color 0.2s;
 }
 
 .btn-text:hover {
@@ -356,10 +351,40 @@ button.playback-btn:focus {
 .btn-text.active {
   background: var(--text-primary, #111);
   color: var(--bg-page, #fff);
-  border-color: var(--text-primary, #111);
 }
 
 .btn-text:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* 移动端按钮响应式：屏幕越窄按钮越紧凑，避免遮挡居中的标题 */
+@media (max-width: 480px) {
+  .header h1 {
+    font-size: 16px;
+    max-width: 50%;
+  }
+  .header > div,
+  .header > .header-actions {
+    gap: 4px !important;
+  }
+  .btn-text {
+    padding: 6px 10px;
+    font-size: 13px;
+    border-radius: 6px;
+  }
+}
+
+@media (max-width: 360px) {
+  .header h1 {
+    font-size: 15px;
+    max-width: 44%;
+  }
+  .btn-text {
+    padding: 5px 8px;
+    font-size: 12px;
+  }
+  .header-logo {
+    height: 20px;
+  }
 }

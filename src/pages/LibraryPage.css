@@ -28,6 +28,32 @@
   color: var(--text-primary);
 }
 
+/* 移动端：缩小标题字号，避免遮挡两侧按钮（提高特异性，避免被其他页面 CSS 覆盖） */
+@media (max-width: 480px) {
+  .library-page .header h1 {
+    font-size: 17px;
+    max-width: 40%;
+  }
+  .library-page .back-btn,
+  .library-page .select-all-btn {
+    padding: 6px 10px !important;
+    font-size: 13px !important;
+    border-radius: 6px;
+  }
+}
+
+@media (max-width: 360px) {
+  .library-page .header h1 {
+    font-size: 15px;
+    max-width: 32%;
+  }
+  .library-page .back-btn,
+  .library-page .select-all-btn {
+    padding: 5px 8px !important;
+    font-size: 12px !important;
+  }
+}
+
 /* LibraryPage 中 .back-btn 实际用作"取消"文字按钮（非导航），独立覆盖样式 */
 .back-btn,
 .select-all-btn {
@@ -39,11 +65,11 @@
   padding: 8px 16px;
   background: var(--bg-page);
   color: var(--text-primary);
-  border: 1px solid var(--border-light);
+  border: none;
   border-radius: 8px;
   font-size: 15px;
   font-weight: 500;
-  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  transition: background 0.2s, color 0.2s;
 }
 
 .back-btn:hover,
@@ -342,19 +368,4 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-}
-
-.select-btn {
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: transparent;
-  color: var(--text-primary);
-  border: 1px solid var(--border-medium);
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.select-btn:hover {
-  border-color: var(--text-primary);
 }
