@@ -4,6 +4,9 @@
   flex-direction: column;
   background: var(--bg-page);
   padding: var(--spacing-md) 16px;
+  /* 覆盖 index.css 全局 .upload-page { overflow: hidden }：
+     让 .content 自己成为滚动容器，避免 LRC 输入时整页被锁 */
+  overflow-y: auto;
 }
 
 @media (min-width: 768px) {
@@ -32,14 +35,24 @@
   font-size: 15px;
 }
 
-.content {
+/* 用 .upload-page 前缀提高特异性，赢过 PracticePage.css 的通用 .content 规则
+   （避免 justify-content: center 把 .upload-card 垂直居中，导致 header/输入框被推到 viewport 上面） */
+.upload-page .content {
   flex: 1;
   display: flex;
   flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
   gap: var(--spacing-lg);
   max-width: none;
   margin: 0;
   width: 100%;
+  /* 让 .content 成为可滚动容器：
+     - min-height: 0 解决 flex 子项默认 min-height: auto 永远撑开的问题
+     - overflow-y: auto 内容超出时内部滚动
+     .upload-card 随内容自然增长，提交按钮一起向下，header 固定可见 */
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .upload-card {
@@ -138,6 +151,161 @@
 }
 
 /* .start-btn 样式继承 .btn-text.active 全局类 */
+
+/* ===== 歌词模式切换 Tab ===== */
+.lyrics-mode-tabs {
+  display: flex;
+  gap: 0;
+  background: var(--bg-elevated);
+  border-radius: 8px;
+  padding: 3px;
+  align-self: stretch;
+}
+
+.lyrics-mode-tab {
+  flex: 1;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.lyrics-mode-tab:hover {
+  color: var(--text-primary);
+}
+
+.lyrics-mode-tab.active {
+  background: var(--bg-page);
+  color: var(--text-primary);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+/* ===== 表单提示 ===== */
+.form-hint {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ===== LRC 模式工具栏 + 预览 ===== */
+.lrc-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.lrc-upload-btn {
+  /* 继承 .btn-text */
+  flex-shrink: 0;
+}
+
+.lrc-hint {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.lrc-textarea {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.lrc-error {
+  margin: 0;
+  padding: 8px 12px;
+  background: rgba(255, 59, 48, 0.08);
+  border: 1px solid rgba(255, 59, 48, 0.3);
+  border-radius: 8px;
+  color: var(--danger);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.lrc-preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: var(--bg-elevated);
+  border-radius: 10px;
+  border: 1px solid var(--border-light);
+}
+
+.lrc-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  font-size: 13px;
+  color: var(--text-primary);
+  font-weight: 500;
+  flex-wrap: wrap;
+}
+
+.lrc-meta {
+  color: var(--text-secondary);
+  font-weight: 400;
+  margin-left: 4px;
+}
+
+.lrc-preview-tip {
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.lrc-preview-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.lrc-preview-list li {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-sm);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.lrc-ts {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  color: var(--text-secondary);
+  font-size: 12px;
+  flex-shrink: 0;
+  min-width: 36px;
+  font-variant-numeric: tabular-nums;
+}
+
+.lrc-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.lrc-preview-more {
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-style: italic;
+  padding-top: 4px;
+}
 
 .bottom-nav {
   display: flex;

@@ -116,14 +116,20 @@
 
 /* .add-btn 样式继承 .btn-text 全局类 */
 
-.content {
+/* 用 .library-page 前缀提高特异性，赢过 PracticePage.css 的通用 .content 规则
+   （避免 justify-content: center 把 .songs-list 垂直居中，导致首项被推到 viewport 上面） */
+.library-page .content {
   flex: 1;
+  display: block;
+  align-items: stretch;
+  justify-content: flex-start;
   overflow-y: auto;
+  min-height: 0;
   padding: var(--spacing-lg) 16px;
 }
 
 @media (min-width: 768px) {
-  .content {
+  .library-page .content {
     padding: var(--spacing-xl) 16px;
   }
 }

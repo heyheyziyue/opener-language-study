@@ -26,14 +26,20 @@
   color: var(--text-primary);
 }
 
-.content {
+/* 用 .favorites-page 前缀提高特异性，赢过 PracticePage.css 的通用 .content 规则
+   （避免 justify-content: center 把 .favorites-list 垂直居中，导致首项被推到 viewport 上面） */
+.favorites-page .content {
   flex: 1;
+  display: block;
+  align-items: stretch;
+  justify-content: flex-start;
   overflow-y: auto;
+  min-height: 0;
   padding: var(--spacing-lg) var(--page-padding-mobile);
 }
 
 @media (min-width: 768px) {
-  .content {
+  .favorites-page .content {
     padding: var(--spacing-xl) var(--page-padding-desktop);
   }
 }
