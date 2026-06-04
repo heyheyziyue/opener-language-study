@@ -67,32 +67,26 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: var(--spacing-lg) var(--page-padding-mobile) var(--spacing-md);
+  padding: var(--spacing-sm) var(--page-padding-mobile) var(--spacing-xs);
   background: var(--bg-page);
 }
 
 @media (min-width: 768px) {
   .song-info-center {
-    padding: var(--spacing-xl) var(--page-padding-desktop) var(--spacing-md);
+    padding: var(--spacing-md) var(--page-padding-desktop) var(--spacing-xs);
   }
 }
 
 .song-info-center .song-title {
-  font-size: 1.5rem;
+  font-size: 1.125rem; /* 18px：紧凑版（原 1.5rem/24px） */
   font-weight: 600;
   color: var(--text-primary, #111);
-  margin: 0 0 6px 0;
+  margin: 0;
   line-height: 1.3;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.song-info-center .favorite-count {
-  font-size: 0.9rem;
-  color: var(--text-secondary, #666);
-  margin: 0;
 }
 
 .header-actions {
@@ -251,7 +245,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-md) var(--page-padding-mobile);
+  padding: 6px var(--page-padding-mobile);
   background: var(--bg-page);
   font-size: 14px;
   color: var(--text-secondary);
@@ -259,8 +253,15 @@
 
 @media (min-width: 768px) {
   .lyrics-header {
-    padding: var(--spacing-md) var(--page-padding-desktop);
+    padding: var(--spacing-sm) var(--page-padding-desktop);
   }
+}
+
+/* 紧凑模式：缩小歌词头部的 .btn-text 内边距（原 padding 8px 16px 来自 index.css） */
+.lyrics-header-actions .btn-text {
+  padding: 4px 12px;
+  font-size: 13px;
+  border-radius: 6px;
 }
 
 /* .add-line-btn 样式已统一为 .btn-text（见 index.css） */
@@ -320,11 +321,13 @@
 /* Guide Card — 使用指南卡片（可关闭 + ? 按钮重新打开） */
 .guide-card {
   position: relative;
-  margin: 0 var(--page-padding-mobile) var(--spacing-md);
+  margin: 0 0 var(--spacing-sm);
   padding: var(--spacing-lg);
   background: var(--bg-page);
   border-left: 3px solid var(--text-primary);
   border-radius: 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .guide-close-btn {
@@ -381,10 +384,7 @@
 }
 
 @media (min-width: 768px) {
-  .guide-card {
-    margin-left: var(--page-padding-desktop);
-    margin-right: var(--page-padding-desktop);
-  }
+  /* 引导卡片现在位于 .lyrics-list 内部，水平 margin 由父容器 padding 提供，无需覆盖 */
 }
 
 /* Lyric Item */

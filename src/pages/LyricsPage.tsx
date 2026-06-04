@@ -1020,7 +1020,6 @@ export default function LyricsPage() {
 
       <div className="song-info-center">
         <h1 className="song-title">{song?.name || "Loading..."}</h1>
-        <p className="favorite-count">已收藏 {favorites.length} 句</p>
       </div>
 
       <div className="lyrics-header">
@@ -1129,50 +1128,49 @@ export default function LyricsPage() {
         </div>
       )}
 
-      {showGuide && (
-        <div className="guide-card">
-          <button className="guide-close-btn" onClick={handleCloseGuide} aria-label="关闭使用指南">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-          <h3 className="guide-title">如何高效使用本工具</h3>
-          <div className="guide-section">
-            <h4 className="guide-section-title">1. 截取时间</h4>
-            <p className="guide-section-text">
-              每句歌词都可以根据自己的需求截取时间，让歌词与对应的音频匹配。
-              你可以使用歌词行的剪刀图标，也可以在电脑上使用快捷键 J（选中句子之后）。
-              在一句话开始的时候开始截取，在结束时结束截取。
-            </p>
-          </div>
-          <div className="guide-section">
-            <h4 className="guide-section-title">2. 反复练习</h4>
-            <p className="guide-section-text">
-              截取时间是为了方便对单句歌词反复练习。
-              不仅可以定制时间戳，还可以选择播放速度与循环次数。
-              这很有必要，有些歌词确实需要你反复听细节。
-            </p>
-          </div>
-          <div className="guide-section">
-            <h4 className="guide-section-title">3. 记得收藏歌词</h4>
-            <p className="guide-section-text">
-              像错题本一样，收藏重要的歌词。
-              你可以在收藏夹练习，也可以在听写模式中听写已收藏的句子。
-              当然，别忘记截取时间。
-            </p>
-          </div>
-          <div className="guide-section">
-            <h4 className="guide-section-title">4. 关于翻译功能与操作方式</h4>
-            <p className="guide-section-text">
-              目前翻译功能受限（资金有限），在确定需求之后一定会补齐这个功能。
-              双击歌词行可以看到操作面板，可以编辑时间戳和歌词、删除歌词等。
-            </p>
-          </div>
-        </div>
-      )}
-
       <div className="lyrics-list">
+        {showGuide && (
+          <div className="guide-card">
+            <button className="guide-close-btn" onClick={handleCloseGuide} aria-label="关闭使用指南">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+            <h3 className="guide-title">如何高效使用本工具</h3>
+            <div className="guide-section">
+              <h4 className="guide-section-title">1. 截取时间</h4>
+              <p className="guide-section-text">
+                每句歌词都可以根据自己的需求截取时间，让歌词与对应的音频匹配。
+                你可以使用歌词行的剪刀图标，也可以在电脑上使用快捷键 J（选中句子之后）。
+                在一句话开始的时候开始截取，在结束时结束截取。
+              </p>
+            </div>
+            <div className="guide-section">
+              <h4 className="guide-section-title">2. 反复练习</h4>
+              <p className="guide-section-text">
+                截取时间是为了方便对单句歌词反复练习。
+                不仅可以定制时间戳，还可以选择播放速度与循环次数。
+                这很有必要，有些歌词确实需要你反复听细节。
+              </p>
+            </div>
+            <div className="guide-section">
+              <h4 className="guide-section-title">3. 记得收藏歌词</h4>
+              <p className="guide-section-text">
+                像错题本一样，收藏重要的歌词。
+                你可以在收藏夹练习，也可以在听写模式中听写已收藏的句子。
+                当然，别忘记截取时间。
+              </p>
+            </div>
+            <div className="guide-section">
+              <h4 className="guide-section-title">4. 关于翻译功能与操作方式</h4>
+              <p className="guide-section-text">
+                目前翻译功能受限（资金有限），在确定需求之后一定会补齐这个功能。
+                双击歌词行可以看到操作面板，可以编辑时间戳和歌词、删除歌词等。
+              </p>
+            </div>
+          </div>
+        )}
         {song?.lyrics.map((line, index) => {
           const clipStatus = getLineClipStatus(line);
           const isEditing = editingLineId === line.id;
