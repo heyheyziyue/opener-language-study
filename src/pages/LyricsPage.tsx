@@ -677,7 +677,7 @@ export default function LyricsPage() {
   };
 
   // 用户在 FolderPickerModal 点击确定后实际写入收藏
-  const performFavorite = async (folderId: string | undefined) => {
+  const performFavorite = async (folderId: string | null | undefined) => {
     if (!song || !linePendingFavorite) return;
     const favorite: FavoriteLine = {
       id: generateId(),
@@ -687,7 +687,7 @@ export default function LyricsPage() {
       practiceCount: 0,
       speed: 1,
       createdAt: new Date().toISOString(),
-      folderId,
+      folderId: folderId ?? undefined,
     };
     await saveFavorite(favorite);
     await loadFavorites();

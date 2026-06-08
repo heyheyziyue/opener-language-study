@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { getAllFavorites, getSong, getAllFolders } from "../lib/storage";
 import { useAudio } from "../lib/audioContext";
 import PlayPauseIcon from "../components/PlayPauseIcon";
@@ -158,10 +158,17 @@ export default function DictationPage() {
     setIsLoading(false);
   };
 
-  const handleSelectFolder = (folderId: string | undefined) => {
-    setSelectedFolderFilter(folderId === undefined ? undefined : folderId);
+  const handleSelectFolder = (folderId: string | null | undefined) => {
+    setSelectedFolderFilter(folderId);
     try {
-      localStorage.setItem(DICTATION_FOLDER_KEY, folderId === undefined ? "undefined" : folderId);
+      if (folderId === null) {
+        // "全部" 走默认，删掉 key 让初始化逻辑 fallback 到 null
+        localStorage.removeItem(DICTATION_FOLDER_KEY);
+      } else if (folderId === undefined) {
+        localStorage.setItem(DICTATION_FOLDER_KEY, "undefined");
+      } else {
+        localStorage.setItem(DICTATION_FOLDER_KEY, folderId);
+      }
     } catch {
       /* ignore */
     }

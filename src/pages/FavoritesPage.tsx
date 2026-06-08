@@ -166,17 +166,17 @@ export default function FavoritesPage() {
   };
 
   // ===== 移动单条 / 批量 =====
-  const handleMoveFavorite = async (folderId: string | undefined) => {
+  const handleMoveFavorite = async (folderId: string | null | undefined) => {
     if (!movingFavorite) return;
-    await moveFavoriteToFolder(movingFavorite.id, folderId);
+    await moveFavoriteToFolder(movingFavorite.id, folderId ?? undefined);
     setMovingFavorite(null);
     await loadAll();
   };
 
-  const handleBatchMove = async (folderId: string | undefined) => {
+  const handleBatchMove = async (folderId: string | null | undefined) => {
     if (selectedIds.size === 0) return;
     for (const id of selectedIds) {
-      await moveFavoriteToFolder(id, folderId);
+      await moveFavoriteToFolder(id, folderId ?? undefined);
     }
     setBatchMoveOpen(false);
     setSelectedIds(new Set());
