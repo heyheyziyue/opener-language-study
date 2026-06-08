@@ -1,10 +1,14 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAllFavorites, getSong } from "../lib/storage";
+import { motion, AnimatePresence } from "framer-motion";
+import { getAllFavorites, getSong, getAllFolders } from "../lib/storage";
 import { useAudio } from "../lib/audioContext";
 import PlayPauseIcon from "../components/PlayPauseIcon";
-import type { FavoriteLine, LyricLine } from "../lib/types";
+import FolderPickerModal from "../components/FolderPickerModal";
+import type { FavoriteLine, LyricLine, Folder } from "../lib/types";
 import "./DictationPage.css";
+
+const DICTATION_FOLDER_KEY = "dictation-folder-id";
 
 type DiffWord = {
   word: string;
@@ -59,6 +63,7 @@ export default function DictationPage() {
   } = useAudio();
 
   const [favorites, setFavorites] = useState<FavoriteLine[]>([]);
+  const [folders, setFolders] = useState<Folder[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [userInput, setUserInput] = useState("");
   const [showLyrics, setShowLyrics] = useState(false);
@@ -74,6 +79,18 @@ export default function DictationPage() {
   // 实时从歌曲数据中获取最新的 clipStart/clipEnd（不读 favorite 旧快照）
   const [latestClipStart, setLatestClipStart] = useState<number | undefined>(undefined);
   const [latestClipEnd, setLatestClipEnd] = useState<number | undefined>(undefined);
+  // 文件夹过滤：null = 全部，undefined = 仅"未分类"，string = 指定文件夹 ID
+  const [selectedFolderFilter, setSelectedFolderFilter] = useState<string | null | undefined>(() => {
+    try {
+      const raw = localStorage.getItem(DICTATION_FOLDER_KEY);
+      if (raw === null) return null;
+      if (raw === "undefined") return undefined;
+      return raw;
+    } catch {
+      return null;
+    }
+  });
+  const [folderPickerOpen, setFolderPickerOpen] = useState(false);
 
   const currentFavorite = favorites[currentIndex];
   const hasClip = latestClipStart !== undefined && latestClipEnd !== undefined;
@@ -90,6 +107,11 @@ export default function DictationPage() {
       setPlaybackRate(1);
     };
   }, []);
+
+  // 当文件夹过滤改变时重新加载
+  useEffect(() => {
+    loadRandomFavorites();
+  }, [selectedFolderFilter]);
 
   // 当前歌词变化时，加载音频片段
   useEffect(() => {
@@ -126,10 +148,30 @@ export default function DictationPage() {
 
   const loadRandomFavorites = async () => {
     setIsLoading(true);
-    const all = await getAllFavorites();
-    setFavorites(shuffle(all));
+    const [all, allFolders] = await Promise.all([getAllFavorites(), getAllFolders()]);
+    setFolders(allFolders);
+    const filtered = selectedFolderFilter === null
+      ? all
+      : all.filter((f) => f.folderId === selectedFolderFilter);
+    setFavorites(shuffle(filtered));
     setCurrentIndex(0);
     setIsLoading(false);
+  };
+
+  const handleSelectFolder = (folderId: string | undefined) => {
+    setSelectedFolderFilter(folderId === undefined ? undefined : folderId);
+    try {
+      localStorage.setItem(DICTATION_FOLDER_KEY, folderId === undefined ? "undefined" : folderId);
+    } catch {
+      /* ignore */
+    }
+    setFolderPickerOpen(false);
+  };
+
+  const getFolderChipLabel = (): string => {
+    if (selectedFolderFilter === null) return "全部";
+    if (selectedFolderFilter === undefined) return "未分类";
+    return folders.find((f) => f.id === selectedFolderFilter)?.name ?? "未知文件夹";
   };
 
   const handleSpeedChange = (newSpeed: number) => {
@@ -287,6 +329,16 @@ export default function DictationPage() {
           </svg>
         </button>
         <h1>听写</h1>
+        <button
+          className="folder-chip btn-text"
+          onClick={() => setFolderPickerOpen(true)}
+          aria-label="选择文件夹"
+        >
+          {getFolderChipLabel()}
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </button>
       </header>
 
       {isLoading ? (
@@ -295,8 +347,17 @@ export default function DictationPage() {
         </main>
       ) : favorites.length === 0 ? (
         <main className="content empty">
-          <p>暂无收藏</p>
-          <span>先去收藏几句歌词再开始听写练习</span>
+          {selectedFolderFilter === null ? (
+            <>
+              <p>暂无收藏</p>
+              <span>先去收藏几句歌词再开始听写练习</span>
+            </>
+          ) : (
+            <>
+              <p>该文件夹暂无收藏</p>
+              <span>切换文件夹或先去收藏几句歌词</span>
+            </>
+          )}
         </main>
       ) : currentFavorite ? (
         <main className="content">
@@ -429,6 +490,17 @@ export default function DictationPage() {
           )}
         </main>
       ) : null}
+
+      <AnimatePresence>
+        {folderPickerOpen && (
+          <FolderPickerModal
+            selectedFolderId={selectedFolderFilter}
+            showAllOption
+            onClose={() => setFolderPickerOpen(false)}
+            onConfirm={handleSelectFolder}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

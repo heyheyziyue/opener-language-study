@@ -15,6 +15,7 @@ export interface LyricLine {
   annotation?: string;
   highlightColor?: string;
   translation?: string;   // 翻译文本
+  translationHidden?: boolean; // 翻译是否被用户隐藏（仅 UI 展示控制，不删除数据）
 }
 
 export interface FavoriteLine {
@@ -26,6 +27,13 @@ export interface FavoriteLine {
   speed: number;
   createdAt: string;
   note?: string;  // 用户批注
+  folderId?: string;  // 所属文件夹 ID;undefined = "未分类"
+}
+
+export interface Folder {
+  id: string;
+  name: string;
+  createdAt: string;
 }
 
 export interface ChatMessage {

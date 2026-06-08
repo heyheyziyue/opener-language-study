@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback, useRef, useMemo, Fragment } from "react";
+import { useState, useEffect, useCallback, useRef, Fragment } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Volume2, Settings, Circle, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getSong, saveSong } from "../lib/storage";
 import { useAudio } from "../lib/audioContext";
 import PlayPauseIcon from "../components/PlayPauseIcon";
+import FolderPickerModal from "../components/FolderPickerModal";
 import type { Song, LyricLine, FavoriteLine } from "../lib/types";
 import { generateId, saveFavorite, getAllFavorites, updateFavoritesByLineId, deleteFavoritesByLineId, deleteFavorite } from "../lib/storage";
 import { setPracticeSourceSongId } from "../lib/navigation";
@@ -20,6 +21,9 @@ export default function LyricsPage() {
   const [selectedLine, setSelectedLine] = useState<LyricLine | null>(null);
   const [showActions, setShowActions] = useState(false);
   const [favorites, setFavorites] = useState<FavoriteLine[]>([]);
+  // 收藏时弹文件夹选择器：linePendingFavorite 设置后弹窗显示
+  const [linePendingFavorite, setLinePendingFavorite] = useState<LyricLine | null>(null);
+  const [folderPickerOpen, setFolderPickerOpen] = useState(false);
   const [clippingLineId, setClippingLineId] = useState<string | null>(null);
   const [editingLineId, setEditingLineId] = useState<string | null>(null);
   const [editingText, setEditingText] = useState("");
@@ -42,6 +46,8 @@ export default function LyricsPage() {
     return localStorage.getItem('guide-closed') !== 'true';
   });
   const [isTranslating, setIsTranslating] = useState(false); // 正在翻译
+  const [editingTranslationLineId, setEditingTranslationLineId] = useState<string | null>(null); // 正在编辑翻译的行 ID
+  const [editingTranslationText, setEditingTranslationText] = useState(""); // 翻译编辑中的临时文本
   const [dragType, setDragType] = useState<"start" | "end" | "range" | null>(null); // 时间轴拖拽类型
   const clickTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null); // 双击检测
   const timelineRef = useRef<HTMLDivElement>(null); // 时间轴 DOM 引用
@@ -140,17 +146,6 @@ export default function LyricsPage() {
     } finally {
       setIsTranslating(false);
     }
-  };
-
-  // 清除所有翻译
-  const handleClearAllTranslations = async () => {
-    if (!song) return;
-    for (const line of song.lyrics) {
-      line.translation = undefined;
-    }
-    // 创建新数组以触发 useMemo 重新计算
-    setSong({ ...song, lyrics: [...song.lyrics] });
-    await saveSong(song);
   };
 
   const formatTime = (time: number) => {
@@ -675,18 +670,28 @@ export default function LyricsPage() {
       return;
     }
 
+    // 弹文件夹选择器，由用户确认后写入
+    setLinePendingFavorite(selectedLine);
+    setFolderPickerOpen(true);
+    setShowActions(false);
+  };
+
+  // 用户在 FolderPickerModal 点击确定后实际写入收藏
+  const performFavorite = async (folderId: string | undefined) => {
+    if (!song || !linePendingFavorite) return;
     const favorite: FavoriteLine = {
       id: generateId(),
       songId: song.id,
       songName: song.name,
-      line: selectedLine,
+      line: linePendingFavorite,
       practiceCount: 0,
       speed: 1,
       createdAt: new Date().toISOString(),
+      folderId,
     };
     await saveFavorite(favorite);
     await loadFavorites();
-    setShowActions(false);
+    setLinePendingFavorite(null);
   };
 
   const handleUnfavorite = async () => {
@@ -721,7 +726,7 @@ export default function LyricsPage() {
     return favorites.some((f) => f.line.id === lineId);
   };
 
-  // 切换单行收藏状态（不依赖 selectedLine）
+  // 切换单行收藏状态（不依赖 selectedLine）— 取消时直接删除；添加时弹文件夹选择器
   const toggleLineFavorite = async (line: LyricLine) => {
     if (!song) return;
     const alreadyFav = favorites.some((f) => f.line.id === line.id);
@@ -735,17 +740,9 @@ export default function LyricsPage() {
         await loadFavorites();
       }
     } else {
-      const fav: FavoriteLine = {
-        id: generateId(),
-        songId: song.id,
-        songName: song.name,
-        line: line,
-        practiceCount: 0,
-        speed: 1,
-        createdAt: new Date().toISOString(),
-      };
-      await saveFavorite(fav);
-      await loadFavorites();
+      // 弹文件夹选择器
+      setLinePendingFavorite(line);
+      setFolderPickerOpen(true);
     }
   };
 
@@ -816,16 +813,44 @@ export default function LyricsPage() {
 
   const handleTranslate = async () => {
     if (!song || !selectedLine) return;
-    if (selectedLine.translation) {
-      // 有翻译了，清除翻译
-      selectedLine.translation = undefined;
-      setSong({ ...song, lyrics: [...song.lyrics] });
-      await saveSong(song);
-      setShowActions(false);
-      return;
-    }
     setShowActions(false);
+    // 仅在没有翻译时生成；清除翻译请用翻译行内的"隐藏"或"编辑"功能
+    if (selectedLine.translation) return;
     selectedLine.translation = await translateLine(selectedLine);
+    setSong({ ...song, lyrics: [...song.lyrics] });
+    await saveSong(song);
+  };
+
+  // ===== 翻译行编辑（仅修改单行翻译内容，不影响原歌词行） =====
+  const handleStartEditTranslation = (line: LyricLine) => {
+    setEditingTranslationLineId(line.id);
+    setEditingTranslationText(line.translation || "");
+  };
+
+  const handleCancelTranslationEdit = () => {
+    setEditingTranslationLineId(null);
+    setEditingTranslationText("");
+  };
+
+  const handleSaveTranslationEdit = async (line: LyricLine) => {
+    if (!song) return;
+    const target = song.lyrics.find((l) => l.id === line.id);
+    if (!target) return;
+    const trimmed = editingTranslationText.trim();
+    target.translation = trimmed || undefined;
+    // 保存后立即退出编辑态
+    setSong({ ...song, lyrics: [...song.lyrics] });
+    await saveSong(song);
+    setEditingTranslationLineId(null);
+    setEditingTranslationText("");
+  };
+
+  // ===== 翻译行隐藏 toggle（仅 UI 展示控制，不删除数据） =====
+  const handleToggleTranslationHidden = async (line: LyricLine) => {
+    if (!song) return;
+    const target = song.lyrics.find((l) => l.id === line.id);
+    if (!target) return;
+    target.translationHidden = !target.translationHidden;
     setSong({ ...song, lyrics: [...song.lyrics] });
     await saveSong(song);
   };
@@ -987,11 +1012,6 @@ export default function LyricsPage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [state.currentTime, state.duration, song, selectedLine, clippingLineId, editingLineId, seekDuration]);
 
-  // 是否有任意一行有翻译
-  const hasAnyTranslation = useMemo(() => {
-    return song?.lyrics.some(line => line.translation) ?? false;
-  }, [song?.lyrics]);
-
   // 关闭使用指南：隐藏 + 持久化
   const handleCloseGuide = () => {
     setShowGuide(false);
@@ -1027,10 +1047,10 @@ export default function LyricsPage() {
           <button className="btn-text" onClick={() => setShowAddLine(true)}>添加歌词</button>
           <button
             className="btn-text"
-            onClick={hasAnyTranslation ? handleClearAllTranslations : handleTranslateAll}
+            onClick={handleTranslateAll}
             disabled={isTranslating}
           >
-            {isTranslating ? "翻译中..." : (hasAnyTranslation ? "清除翻译" : "一键翻译")}
+            {isTranslating ? "翻译中..." : "一键翻译"}
           </button>
           {!isSelectMode ? (
             <button className="btn-text" onClick={toggleSelectMode}>批量操作</button>
@@ -1318,11 +1338,58 @@ export default function LyricsPage() {
                   </span>
                 )}
               </motion.div>
-              {line.translation && (
-                <div className="translation-row">
-                  <span className="line-text">{line.translation}</span>
-                </div>
-              )}
+              {line.translation && (() => {
+                const isEditingTranslation = editingTranslationLineId === line.id;
+                const isTranslationHidden = !!line.translationHidden;
+                return (
+                  <div className={`translation-row ${isEditingTranslation ? "editing" : ""} ${isTranslationHidden ? "hidden" : ""}`}>
+                    {isEditingTranslation ? (
+                      <div className="translation-edit">
+                        <textarea
+                          className="translation-edit-textarea"
+                          value={editingTranslationText}
+                          onChange={(e) => setEditingTranslationText(e.target.value)}
+                          onClick={(e) => e.stopPropagation()}
+                          onFocus={(e) => e.stopPropagation()}
+                          rows={2}
+                          autoFocus
+                        />
+                        <div className="translation-edit-actions" onClick={(e) => e.stopPropagation()}>
+                          <button className="btn-text active" onClick={() => handleSaveTranslationEdit(line)}>保存</button>
+                          <button className="btn-text" onClick={handleCancelTranslationEdit}>取消</button>
+                        </div>
+                      </div>
+                    ) : isTranslationHidden ? (
+                      <div
+                        className="translation-mask"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        翻译已隐藏
+                      </div>
+                    ) : (
+                      <span className="line-text">{line.translation}</span>
+                    )}
+                    {!isEditingTranslation && (
+                      <div className="translation-row-actions" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          className="translation-row-btn"
+                          onClick={() => handleToggleTranslationHidden(line)}
+                          aria-label={isTranslationHidden ? "显示翻译" : "隐藏翻译"}
+                        >
+                          {isTranslationHidden ? "查看" : "隐藏"}
+                        </button>
+                        <button
+                          className="translation-row-btn"
+                          onClick={() => handleStartEditTranslation(line)}
+                          aria-label="编辑翻译"
+                        >
+                          编辑
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
               {isThisStandalonePlaying && (
                 <div className="inline-progress" onClick={(e) => e.stopPropagation()}>
                   <div className="inline-progress-row">
@@ -1455,9 +1522,11 @@ export default function LyricsPage() {
                   <button className="btn-text" onClick={handleDeleteLine}>
                     删除此句
                   </button>
-                  <button className="btn-text" onClick={handleTranslate}>
-                    {selectedLine.translation ? "清除翻译" : "翻译"}
-                  </button>
+                  {!selectedLine.translation && (
+                    <button className="btn-text" onClick={handleTranslate}>
+                      翻译
+                    </button>
+                  )}
                 </>
               ) : selectedLine.clipStart !== undefined ? (
                 <>
@@ -1492,9 +1561,11 @@ export default function LyricsPage() {
                   }}>
                     编辑歌词与时间戳
                   </button>
-                  <button className="btn-text" onClick={handleTranslate}>
-                    {selectedLine.translation ? "清除翻译" : "翻译"}
-                  </button>
+                  {!selectedLine.translation && (
+                    <button className="btn-text" onClick={handleTranslate}>
+                      翻译
+                    </button>
+                  )}
                 </>
               ) : (
                 <>
@@ -1527,9 +1598,11 @@ export default function LyricsPage() {
                   }}>
                     编辑歌词与时间戳
                   </button>
-                  <button className="btn-text" onClick={handleTranslate}>
-                    {selectedLine.translation ? "清除翻译" : "翻译"}
-                  </button>
+                  {!selectedLine.translation && (
+                    <button className="btn-text" onClick={handleTranslate}>
+                      翻译
+                    </button>
+                  )}
                 </>
               )}
               <button className="btn-text" onClick={() => setShowActions(false)}>
@@ -1537,6 +1610,22 @@ export default function LyricsPage() {
               </button>
             </motion.div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {folderPickerOpen && (
+          <FolderPickerModal
+            selectedFolderId={undefined}
+            onClose={() => {
+              setFolderPickerOpen(false);
+              setLinePendingFavorite(null);
+            }}
+            onConfirm={(folderId) => {
+              setFolderPickerOpen(false);
+              performFavorite(folderId);
+            }}
+          />
         )}
       </AnimatePresence>
     </div>

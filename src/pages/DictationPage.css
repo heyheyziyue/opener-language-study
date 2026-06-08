@@ -26,6 +26,29 @@
   color: var(--text-primary);
 }
 
+/* 文件夹筛选 chip — 头部右侧 */
+.dictation-page .header .folder-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  font-size: 13px;
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  background: var(--bg-page);
+  color: var(--text-primary);
+  font-weight: 500;
+  max-width: 110px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dictation-page .header .folder-chip svg {
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
 .dictation-page .content {
   flex: 1;
   display: flex;
@@ -33,6 +56,8 @@
   align-items: center;
   gap: var(--spacing-lg);
   padding: var(--spacing-xl) 16px;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .dictation-page .content.empty {

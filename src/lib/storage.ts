@@ -1,13 +1,14 @@
 import { openDB } from "idb";
 import type { IDBPDatabase } from "idb";
-import type { Song, FavoriteLine, LyricLine } from "./types";
+import type { Song, FavoriteLine, LyricLine, Folder } from "./types";
 
 const DB_NAME = "opener-db";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 interface OpenerDB {
   songs: Song;
   favorites: FavoriteLine;
+  folders: Folder;
 }
 
 let dbPromise: Promise<IDBPDatabase<OpenerDB>> | null = null;
@@ -15,15 +16,22 @@ let dbPromise: Promise<IDBPDatabase<OpenerDB>> | null = null;
 function getDb() {
   if (!dbPromise) {
     dbPromise = openDB<OpenerDB>(DB_NAME, DB_VERSION, {
-      upgrade(db) {
-        // Songs store
-        if (!db.objectStoreNames.contains("songs")) {
-          db.createObjectStore("songs", { keyPath: "id" });
+      upgrade(db, oldVersion) {
+        // v1: songs + favorites
+        if (oldVersion < 1) {
+          if (!db.objectStoreNames.contains("songs")) {
+            db.createObjectStore("songs", { keyPath: "id" });
+          }
+          if (!db.objectStoreNames.contains("favorites")) {
+            const store = db.createObjectStore("favorites", { keyPath: "id" });
+            store.createIndex("by-song", "songId");
+          }
         }
-        // Favorites store
-        if (!db.objectStoreNames.contains("favorites")) {
-          const store = db.createObjectStore("favorites", { keyPath: "id" });
-          store.createIndex("by-song", "songId");
+        // v2: folders
+        if (oldVersion < 2) {
+          if (!db.objectStoreNames.contains("folders")) {
+            db.createObjectStore("folders", { keyPath: "id" });
+          }
         }
       },
     });
@@ -115,6 +123,58 @@ export async function updateFavoritePractice(id: string, practiceCount: number, 
     favorite.speed = speed;
     await db.put("favorites", favorite);
   }
+}
+
+// ===== Folders (v2) =====
+// 注意：folderId 在 FavoriteLine 上是 optional 字段，
+// 已存在的 v1 数据没有 folderId，UI 渲染时归到"未分类"组
+
+export async function saveFolder(folder: Folder) {
+  const db = await getDb();
+  await db.put("folders", folder);
+  return folder;
+}
+
+export async function getAllFolders(): Promise<Folder[]> {
+  const db = await getDb();
+  return db.getAll("folders");
+}
+
+export async function renameFolder(id: string, newName: string) {
+  const db = await getDb();
+  const folder = await db.get("folders", id);
+  if (folder) {
+    folder.name = newName;
+    await db.put("folders", folder);
+  }
+  return folder;
+}
+
+// 删除文件夹：级联清除组内收藏的 folderId（→ 自动归到"未分类"）
+export async function deleteFolder(id: string) {
+  const db = await getDb();
+  await db.delete("folders", id);
+  // 把所有引用此文件夹的收藏 folderId 置为 undefined
+  const tx = db.transaction("favorites", "readwrite");
+  const allFavs = await tx.objectStore("favorites").getAll();
+  for (const fav of allFavs) {
+    if (fav.folderId === id) {
+      fav.folderId = undefined;
+      await tx.objectStore("favorites").put(fav);
+    }
+  }
+  await tx.done;
+}
+
+// 移动单条收藏到指定文件夹(传入 undefined = 移到"未分类")
+export async function moveFavoriteToFolder(favoriteId: string, folderId: string | undefined) {
+  const db = await getDb();
+  const fav = await db.get("favorites", favoriteId);
+  if (fav) {
+    fav.folderId = folderId;
+    await db.put("favorites", fav);
+  }
+  return fav;
 }
 
 // Generate unique ID

@@ -1,0 +1,146 @@
+.folder-picker-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 200;
+}
+
+.folder-picker-sheet {
+  background: var(--bg-page);
+  border-radius: 16px 16px 0 0;
+  width: 100%;
+  max-width: 400px;
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.folder-picker-title {
+  padding: var(--spacing-md);
+  text-align: center;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.folder-picker-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0;
+  margin: 0;
+}
+
+.folder-picker-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-md);
+  background: transparent;
+  border: none;
+  outline: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text-primary);
+  font-size: 15px;
+  transition: background 0.15s;
+}
+
+.folder-picker-item:hover {
+  background: var(--bg-elevated);
+}
+
+.folder-picker-item.selected {
+  background: var(--bg-elevated);
+}
+
+.folder-picker-radio {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.folder-picker-radio.plus {
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.folder-picker-name {
+  flex: 1;
+  font-weight: 500;
+  word-break: break-all;
+}
+
+.folder-picker-create {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.folder-picker-create-form {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--bg-elevated);
+  border-radius: 8px;
+}
+
+/* "仅创建"模式：没有 ● 指示符，让输入框更突出 */
+.folder-picker-create-only {
+  padding: var(--spacing-md);
+  border: 1px solid var(--border-medium);
+}
+
+.folder-picker-create-only .folder-picker-input {
+  font-size: 16px;
+  padding: 4px 0;
+}
+
+.folder-picker-input {
+  flex: 1;
+  padding: 4px 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 15px;
+  color: var(--text-primary);
+  min-width: 0;
+}
+
+.folder-picker-input::placeholder {
+  color: var(--text-secondary);
+}
+
+.folder-picker-error {
+  padding: 0 var(--spacing-md);
+  font-size: 13px;
+  color: var(--danger);
+  text-align: center;
+}
+
+.folder-picker-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  justify-content: center;
+  padding-top: var(--spacing-sm);
+}
+
+.folder-picker-actions .btn-text {
+  flex: 1;
+  max-width: 160px;
+}

@@ -990,7 +990,7 @@
 .translation-row {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 12px;
   padding: 4px 16px 8px 16px;
   background: transparent;
   border-radius: 0;
@@ -999,9 +999,112 @@
   transition: background 0.2s, color 0.2s;
 }
 
+/* 编辑态：占据整行，textarea 可输入 */
+.translation-row.editing {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  padding: 8px 16px 10px 16px;
+}
+
 .translation-row .line-text {
+  flex: 1;
+  text-align: center;
   font-style: italic;
   color: var(--text-secondary);
+  min-width: 0;
+}
+
+/* ===== 翻译行内编辑 ===== */
+.translation-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.translation-edit-textarea {
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--bg-page);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  font-family: inherit;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.translation-edit-textarea:focus {
+  outline: none;
+  border-color: #111;
+}
+
+.translation-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+/* 紧凑覆盖：翻译行内的 .btn-text */
+.translation-edit-actions .btn-text {
+  padding: 4px 12px;
+  font-size: 13px;
+  border-radius: 6px;
+}
+
+/* ===== 翻译行操作按钮（隐藏 / 编辑） ===== */
+.translation-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  opacity: 0.55;
+  transition: opacity 0.15s;
+}
+
+.translation-row:hover .translation-row-actions {
+  opacity: 1;
+}
+
+.translation-row-btn {
+  padding: 2px 8px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.translation-row-btn:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+/* ===== 翻译已隐藏占位（参考 DictationPage .lyric-mask） ===== */
+.translation-mask {
+  flex: 1;
+  background: var(--bg-elevated);
+  border-radius: 6px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-style: italic;
+  user-select: none;
+  cursor: pointer;
+}
+
+.translation-mask:hover {
+  background: var(--border-light);
 }
 
 /* 歌词行选中时，紧跟的翻译行同步变黑 */
@@ -1012,6 +1115,37 @@
 .lyric-item.selected + .translation-row .line-text {
   color: #fff;
   font-weight: 500;
+}
+
+/* 选中态下：操作按钮反色为白 */
+.lyric-item.selected + .translation-row .translation-row-btn {
+  color: #fff;
+}
+
+.lyric-item.selected + .translation-row .translation-row-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* 选中态下：mask 在黑底上变为更浅的灰色 */
+.lyric-item.selected + .translation-row .translation-mask {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.lyric-item.selected + .translation-row .translation-mask:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* 选中态下：编辑态的 textarea 内部需要区分（用边框提示） */
+.lyric-item.selected + .translation-row.editing {
+  background: #111;
+}
+
+.lyric-item.selected + .translation-row.editing .translation-edit-textarea {
+  background: #1f1f1f;
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
 }
 
 /* 同时选中+激活时保持同步 */
