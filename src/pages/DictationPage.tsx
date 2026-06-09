@@ -427,13 +427,12 @@ export default function DictationPage() {
 
           <div className="dictation-controls">
             <button
-              className="playback-nav-btn transparent-play-btn"
+              className="dictation-nav-text-btn"
               onClick={handlePrevLine}
               aria-label="上一句"
+              disabled={favorites.length <= 1}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="15,18 9,12 15,6" />
-              </svg>
+              上一句
             </button>
             <button
               className="play-btn transparent-play-btn"
@@ -443,13 +442,12 @@ export default function DictationPage() {
               <PlayPauseIcon isPlaying={isPlaying} size={32} />
             </button>
             <button
-              className="playback-nav-btn transparent-play-btn"
+              className="dictation-nav-text-btn"
               onClick={handleNextLine}
               aria-label="下一句"
+              disabled={favorites.length <= 1}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="9,18 15,12 9,6" />
-              </svg>
+              下一句
             </button>
           </div>
 

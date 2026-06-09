@@ -150,20 +150,30 @@ export async function renameFolder(id: string, newName: string) {
   return folder;
 }
 
-// 删除文件夹：级联清除组内收藏的 folderId（→ 自动归到"未分类"）
+// 删除文件夹：级联清除组内收藏和歌曲的 folderId（→ 自动归到"未分类"）
 export async function deleteFolder(id: string) {
   const db = await getDb();
   await db.delete("folders", id);
-  // 把所有引用此文件夹的收藏 folderId 置为 undefined
-  const tx = db.transaction("favorites", "readwrite");
-  const allFavs = await tx.objectStore("favorites").getAll();
+  // 收藏：folderId 置为 undefined
+  const favTx = db.transaction("favorites", "readwrite");
+  const allFavs = await favTx.objectStore("favorites").getAll();
   for (const fav of allFavs) {
     if (fav.folderId === id) {
       fav.folderId = undefined;
-      await tx.objectStore("favorites").put(fav);
+      await favTx.objectStore("favorites").put(fav);
     }
   }
-  await tx.done;
+  await favTx.done;
+  // 歌曲：folderId 置为 undefined
+  const songTx = db.transaction("songs", "readwrite");
+  const allSongs = await songTx.objectStore("songs").getAll();
+  for (const song of allSongs) {
+    if (song.folderId === id) {
+      song.folderId = undefined;
+      await songTx.objectStore("songs").put(song);
+    }
+  }
+  await songTx.done;
 }
 
 // 移动单条收藏到指定文件夹(传入 undefined = 移到"未分类")
@@ -175,6 +185,67 @@ export async function moveFavoriteToFolder(favoriteId: string, folderId: string 
     await db.put("favorites", fav);
   }
   return fav;
+}
+
+// 移动单首歌曲到指定文件夹(传入 undefined = 移到"未分类")
+export async function moveSongToFolder(songId: string, folderId: string | undefined) {
+  const db = await getDb();
+  const song = await db.get("songs", songId);
+  if (song) {
+    song.folderId = folderId;
+    await db.put("songs", song);
+  }
+  return song;
+}
+
+// 更新单首歌曲的文件夹内排序序号
+export async function updateSongOrder(songId: string, order: number) {
+  const db = await getDb();
+  const song = await db.get("songs", songId);
+  if (song) {
+    song.order = order;
+    await db.put("songs", song);
+  }
+  return song;
+}
+
+// 更新单条收藏的文件夹内排序序号
+export async function updateFavoriteOrder(favoriteId: string, order: number) {
+  const db = await getDb();
+  const fav = await db.get("favorites", favoriteId);
+  if (fav) {
+    fav.order = order;
+    await db.put("favorites", fav);
+  }
+  return fav;
+}
+
+// 批量更新歌曲的 order（拖拽落位时一次写入所有变更）
+export async function batchUpdateSongOrders(orders: Array<{ id: string; order: number }>) {
+  const db = await getDb();
+  const tx = db.transaction("songs", "readwrite");
+  for (const { id, order } of orders) {
+    const song = await tx.objectStore("songs").get(id);
+    if (song) {
+      song.order = order;
+      await tx.objectStore("songs").put(song);
+    }
+  }
+  await tx.done;
+}
+
+// 批量更新收藏的 order
+export async function batchUpdateFavoriteOrders(orders: Array<{ id: string; order: number }>) {
+  const db = await getDb();
+  const tx = db.transaction("favorites", "readwrite");
+  for (const { id, order } of orders) {
+    const fav = await tx.objectStore("favorites").get(id);
+    if (fav) {
+      fav.order = order;
+      await tx.objectStore("favorites").put(fav);
+    }
+  }
+  await tx.done;
 }
 
 // Generate unique ID

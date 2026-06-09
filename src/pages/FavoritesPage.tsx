@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, Reorder, useDragControls } from "framer-motion";
 import {
   getAllFavorites,
   deleteFavorite,
@@ -8,6 +8,7 @@ import {
   renameFolder,
   deleteFolder,
   moveFavoriteToFolder,
+  batchUpdateFavoriteOrders,
 } from "../lib/storage";
 import { setPracticeSourceSongId } from "../lib/navigation";
 import type { FavoriteLine, Folder } from "../lib/types";
@@ -32,6 +33,14 @@ const saveCollapsed = (set: Set<string>) => {
   } catch {
     /* ignore */
   }
+};
+
+// order 优先；未指定 order 的按 createdAt 降序
+const sortByOrderThenCreated = (a: FavoriteLine, b: FavoriteLine): number => {
+  if (a.order !== undefined && b.order !== undefined) return a.order - b.order;
+  if (a.order !== undefined) return -1;
+  if (b.order !== undefined) return 1;
+  return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
 };
 
 export default function FavoritesPage() {
@@ -76,11 +85,30 @@ export default function FavoritesPage() {
 
   const loadAll = async () => {
     const [favs, allFolders] = await Promise.all([getAllFavorites(), getAllFolders()]);
-    setFavorites(
-      favs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    );
+    setFavorites(favs);
     setFolders(allFolders.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()));
   };
+
+  // ===== 拖拽排序 =====
+  const handleReorder = useCallback(
+    async (groupKey: string, newItems: FavoriteLine[]) => {
+      setFavorites((prev) =>
+        prev.map((f) => {
+          if (groupKey === "__uncategorized__") {
+            if (f.folderId) return f;
+          } else if (f.folderId !== groupKey) {
+            return f;
+          }
+          const idx = newItems.findIndex((ni) => ni.id === f.id);
+          if (idx >= 0) return { ...f, order: idx };
+          return f;
+        })
+      );
+      const orders = newItems.map((item, idx) => ({ id: item.id, order: idx }));
+      await batchUpdateFavoriteOrders(orders);
+    },
+    []
+  );
 
   // ===== 收藏删除 =====
   const handleDelete = async (id: string) => {
@@ -202,16 +230,23 @@ export default function FavoritesPage() {
     navigate(-1);
   };
 
-  // ===== 分组 =====
-  const groups: Array<{ key: string; folder: Folder | null; items: FavoriteLine[] }> = [];
-  // 未分类始终在最前
-  const uncategorized = favorites.filter((f) => !f.folderId);
-  groups.push({ key: "__uncategorized__", folder: null, items: uncategorized });
-  // 用户文件夹按顺序
-  for (const folder of folders) {
-    const items = favorites.filter((f) => f.folderId === folder.id);
-    groups.push({ key: folder.id, folder, items });
-  }
+  // ===== 分组（带排序） =====
+  const groups = useMemo<
+    Array<{ key: string; folder: Folder | null; items: FavoriteLine[] }>
+  >(() => {
+    const result: Array<{ key: string; folder: Folder | null; items: FavoriteLine[] }> = [];
+    const uncategorized = favorites
+      .filter((f) => !f.folderId)
+      .sort(sortByOrderThenCreated);
+    result.push({ key: "__uncategorized__", folder: null, items: uncategorized });
+    for (const folder of folders) {
+      const items = favorites
+        .filter((f) => f.folderId === folder.id)
+        .sort(sortByOrderThenCreated);
+      result.push({ key: folder.id, folder, items });
+    }
+    return result;
+  }, [favorites, folders]);
 
   return (
     <div className="favorites-page">
@@ -265,7 +300,7 @@ export default function FavoritesPage() {
       )}
 
       <main className="content">
-        {favorites.length === 0 ? (
+        {favorites.length === 0 && folders.length === 0 ? (
           <div className="empty">
             <p>暂无收藏</p>
             <span>在歌词页面点击句子即可收藏</span>
@@ -363,7 +398,7 @@ export default function FavoritesPage() {
                   <AnimatePresence initial={false}>
                     {!isCollapsed && (
                       <motion.div
-                        className="favorites-list"
+                        className="favorites-collapse"
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
@@ -373,48 +408,26 @@ export default function FavoritesPage() {
                         {group.items.length === 0 && group.folder && (
                           <div className="favorites-empty-hint">空文件夹 — 收藏歌词后可在此选择「移动」加入</div>
                         )}
-                        {group.items.map((fav, index) => (
-                          <motion.div
-                            key={fav.id}
-                            className={`favorite-item ${selectedIds.has(fav.id) ? "selected" : ""}`}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.02 }}
-                            onClick={() => (isSelectMode ? toggleSelect(fav.id) : handlePractice(fav))}
-                          >
-                            {isSelectMode && (
-                              <div className={`checkbox ${selectedIds.has(fav.id) ? "checked" : ""}`}>
-                                {selectedIds.has(fav.id) ? "✓" : ""}
-                              </div>
-                            )}
-                            <div className="fav-content">
-                              <div className="fav-song">{fav.songName}</div>
-                              <div className="fav-line">{fav.line.text}</div>
-                            </div>
-                            {!isSelectMode && (
-                              <>
-                                <button
-                                  className="move-btn btn-text"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setMovingFavorite(fav);
-                                  }}
-                                >
-                                  移动
-                                </button>
-                                <button
-                                  className="delete-btn btn-text"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDelete(fav.id);
-                                  }}
-                                >
-                                  删除
-                                </button>
-                              </>
-                            )}
-                          </motion.div>
-                        ))}
+                        <Reorder.Group
+                          axis="y"
+                          values={group.items}
+                          onReorder={(newItems) => handleReorder(group.key, newItems)}
+                          as="div"
+                          className="favorites-list"
+                        >
+                          {group.items.map((fav) => (
+                            <FavoriteItem
+                              key={fav.id}
+                              fav={fav}
+                              isSelectMode={isSelectMode}
+                              isSelected={selectedIds.has(fav.id)}
+                              onToggleSelect={() => toggleSelect(fav.id)}
+                              onClick={() => (isSelectMode ? toggleSelect(fav.id) : handlePractice(fav))}
+                              onDelete={() => handleDelete(fav.id)}
+                              onMove={() => setMovingFavorite(fav)}
+                            />
+                          ))}
+                        </Reorder.Group>
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -488,5 +501,77 @@ export default function FavoritesPage() {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+// 单条收藏项（带拖拽手柄）
+function FavoriteItem({
+  fav,
+  isSelectMode,
+  isSelected,
+  onToggleSelect,
+  onClick,
+  onDelete,
+  onMove,
+}: {
+  fav: FavoriteLine;
+  isSelectMode: boolean;
+  isSelected: boolean;
+  onToggleSelect: () => void;
+  onClick: () => void;
+  onDelete: () => void;
+  onMove: () => void;
+}) {
+  const controls = useDragControls();
+
+  return (
+    <Reorder.Item
+      value={fav}
+      dragListener={false}
+      dragControls={controls}
+      className={`favorite-item ${isSelected ? "selected" : ""}`}
+      whileDrag={{
+        scale: 1.02,
+        boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+        zIndex: 10,
+      }}
+      style={{ listStyle: "none" }}
+    >
+      {!isSelectMode && (
+        <button
+          className="drag-handle"
+          onPointerDown={(e) => controls.start(e)}
+          aria-label="拖动排序"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="9" cy="5" r="1" />
+            <circle cx="9" cy="12" r="1" />
+            <circle cx="9" cy="19" r="1" />
+            <circle cx="15" cy="5" r="1" />
+            <circle cx="15" cy="12" r="1" />
+            <circle cx="15" cy="19" r="1" />
+          </svg>
+        </button>
+      )}
+      {isSelectMode && (
+        <div className={`checkbox ${isSelected ? "checked" : ""}`} onClick={(e) => { e.stopPropagation(); onToggleSelect(); }}>
+          {isSelected ? "✓" : ""}
+        </div>
+      )}
+      <div className="fav-content" onClick={onClick}>
+        <div className="fav-song">{fav.songName}</div>
+        <div className="fav-line">{fav.line.text}</div>
+      </div>
+      {!isSelectMode && (
+        <>
+          <button className="move-btn btn-text" onClick={(e) => { e.stopPropagation(); onMove(); }}>
+            移动
+          </button>
+          <button className="delete-btn btn-text" onClick={(e) => { e.stopPropagation(); onDelete(); }}>
+            删除
+          </button>
+        </>
+      )}
+    </Reorder.Item>
   );
 }

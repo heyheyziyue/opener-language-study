@@ -4,6 +4,8 @@ export interface Song {
   audioBlob?: Blob;
   lyrics: LyricLine[];
   createdAt: string;
+  folderId?: string;   // 所属文件夹 ID;undefined = "未分类"
+  order?: number;      // 文件夹内手动排序序号;undefined = 用 createdAt 排序
 }
 
 export interface LyricLine {
@@ -28,6 +30,7 @@ export interface FavoriteLine {
   createdAt: string;
   note?: string;  // 用户批注
   folderId?: string;  // 所属文件夹 ID;undefined = "未分类"
+  order?: number;     // 文件夹内手动排序序号;undefined = 用 createdAt 排序
 }
 
 export interface Folder {

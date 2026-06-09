@@ -201,6 +201,40 @@
   transform: scale(0.92);
 }
 
+/* 上下句文本按钮（v2.2.19 替代 chevron 箭头） */
+.dictation-controls .dictation-nav-text-btn {
+  min-width: 64px;
+  height: 36px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s, transform 0.15s;
+}
+
+.dictation-controls .dictation-nav-text-btn:hover {
+  color: var(--text-secondary);
+  background: var(--bg-elevated);
+}
+
+.dictation-controls .dictation-nav-text-btn:active {
+  transform: scale(0.95);
+  background: var(--bg-elevated);
+}
+
+.dictation-controls .dictation-nav-text-btn:disabled {
+  color: var(--text-secondary);
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 /* 循环计数 */
 .loop-counter {
   width: 100%;

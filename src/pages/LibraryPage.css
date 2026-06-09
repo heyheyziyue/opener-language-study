@@ -375,3 +375,62 @@
   align-items: center;
   gap: var(--spacing-sm);
 }
+
+/* ===== 文件夹分组（v2.2.19） ===== */
+.library-groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  width: 100%;
+}
+
+.library-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.library-group-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: 0;
+  user-select: none;
+}
+
+/* 拖拽手柄 */
+.drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: grab;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  touch-action: none;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.drag-handle:hover {
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+  background: var(--bg-elevated);
+}
+
+.song-item {
+  cursor: default;
+}
+
+.song-item .song-info {
+  cursor: pointer;
+}
