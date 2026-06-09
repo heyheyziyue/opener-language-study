@@ -63,7 +63,9 @@ async function callMiniMaxApi({ endpoint, body, apiKey, timeoutMs, contextLabel 
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`,
       },
-      body: JSON.stringify(body),
+      // 关键：预编码为 UTF-8 Buffer，避免 Node.js fetch 内部把含中文的 body 字符串
+      // 当作 Latin-1 ByteString 转换时报 "Cannot convert argument to a ByteString"。
+      body: Buffer.from(JSON.stringify(body), 'utf-8'),
     },
     timeoutMs
   );

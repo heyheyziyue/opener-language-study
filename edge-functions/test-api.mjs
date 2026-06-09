@@ -19,6 +19,10 @@ const userInput = process.argv[2] || '我想学咖啡店点单';
 console.log('📝 测试输入:', JSON.stringify(userInput));
 console.log('');
 
+// EdgeOne Pages Functions 超时阈值（用于后面判定）
+const EDGEONE_BUDGET_MS = 30_000;
+const t0 = Date.now();
+
 // ===== Step 1: 歌词端点 =====
 console.log('⏳ Step 1/2  调 /v1/lyrics_generation ...');
 const t1 = Date.now();
@@ -74,3 +78,32 @@ try {
 
 console.log('');
 console.log('🎉 全部通过！后端集成 OK，可以去部署 EdgeOne 了。');
+
+// ===== 耗时汇总 =====
+const totalMs = Date.now() - t0;
+const lyricsMs = t2 - t1; // 歌词耗时 = 音乐开始时戳 - 歌词开始时戳
+const musicMs = Date.now() - t2; // 音乐耗时 = 当前 - 音乐开始时戳
+
+console.log('');
+console.log('━'.repeat(50));
+console.log('⏱️  耗时汇总');
+console.log('━'.repeat(50));
+console.log(`   歌词生成 : ${lyricsMs} ms  (${(lyricsMs / 1000).toFixed(2)}s)`);
+console.log(`   音乐生成 : ${musicMs} ms  (${(musicMs / 1000).toFixed(2)}s)`);
+console.log(`   总耗时   : ${totalMs} ms  (${(totalMs / 1000).toFixed(2)}s)`);
+console.log('');
+console.log('━'.repeat(50));
+console.log('🎯 EdgeOne 30s 预算判定');
+console.log('━'.repeat(50));
+console.log(`   预算      : ${EDGEONE_BUDGET_MS} ms (30s)`);
+console.log(`   实际总耗时: ${totalMs} ms`);
+console.log(`   剩余缓冲  : ${EDGEONE_BUDGET_MS - totalMs} ms`);
+if (totalMs <= EDGEONE_BUDGET_MS) {
+  console.log(`   结论      : ✅ 通过！可以直接部署 EdgeOne，不需要备案/换平台`);
+} else if (totalMs <= EDGEONE_BUDGET_MS * 1.5) {
+  console.log(`   结论      : ⚠️  超出 ${totalMs - EDGEONE_BUDGET_MS}ms，EdgeOne 不行`);
+  console.log(`             → 建议换 Vercel Hobby (60s)`);
+} else {
+  console.log(`   结论      : ❌ 严重超出，music-2.6 仍未提速`);
+  console.log(`             → 建议走方案 D：歌词先上线，音乐以后说`);
+}

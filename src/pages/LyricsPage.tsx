@@ -113,36 +113,56 @@ export default function LyricsPage() {
     setFavorites(all.filter((f) => f.songId === songId));
   };
 
-  // 翻译单句歌词
+  // 翻译单句歌词（通过我们自己的 /api/translate 后端，1 行也走批量接口）
   const translateLine = async (line: LyricLine): Promise<string> => {
     try {
-      const response = await fetch(
-        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(line.text)}&langpair=en|zh-CN`
-      );
+      const response = await fetch("/api/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lines: [line.text] }),
+      });
       if (!response.ok) throw new Error("翻译请求失败");
       const data = await response.json();
-      if (data.responseStatus === 200 && data.responseData) {
-        return data.responseData.translatedText;
+      if (data.translations?.[0]) {
+        return data.translations[0];
       }
-      throw new Error(data.responseDetails || "翻译失败");
+      throw new Error("翻译失败");
     } catch (err) {
       console.error("翻译错误:", err);
       return line.text; // 翻译失败时返回原文
     }
   };
 
-  // 一键翻译全部歌词
+  // 一键翻译全部歌词（1 次 LLM 调用，~3s 搞定整首歌）
   const handleTranslateAll = async () => {
     if (!song || isTranslating) return;
     setIsTranslating(true);
     try {
-      for (const line of song.lyrics) {
-        if (!line.translation) {
-          line.translation = await translateLine(line);
-        }
+      // 找出还没翻译的行（避免重复翻译、节省 token）
+      const untranslated = song.lyrics.filter((l) => !l.translation);
+      if (untranslated.length === 0) return;
+
+      // 1 次批量调用
+      const response = await fetch("/api/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lines: untranslated.map((l) => l.text) }),
+      });
+      if (!response.ok) throw new Error("翻译请求失败");
+      const data = await response.json();
+      if (!Array.isArray(data.translations)) {
+        throw new Error("翻译响应格式错误");
       }
+
+      // 把翻译结果填回对应的行
+      untranslated.forEach((line, i) => {
+        line.translation = data.translations[i] || line.text;
+      });
       setSong({ ...song, lyrics: [...song.lyrics] });
       await saveSong(song);
+    } catch (err) {
+      console.error("批量翻译错误:", err);
+      alert("翻译失败，请稍后重试");
     } finally {
       setIsTranslating(false);
     }
