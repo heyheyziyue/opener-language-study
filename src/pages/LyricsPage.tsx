@@ -134,9 +134,14 @@ export default function LyricsPage() {
   };
 
   // 一键翻译全部歌词
-  // 为什么切片并行：EdgeOne 函数 ~30s 超时，行数多时单次批量调用会超时
-  // 每批 20 行 ≈ 2-3s，并行后整首歌 ~3-5s 完成
+  // 为什么切片 + 限并发：
+  //   1) EdgeOne 函数 ~30s 超时：单次批量调用超过 ~50 行就会超时，所以切片
+  //   2) MiniMax LLM 有 QPS 限流：实测一次发 6 个并发（101 行）会立刻触发限流失败
+  // 策略：每批 20 行，同时最多 MAX_PARALLEL 个请求，超出的分批排队（waves）
+  // 每个 batch 失败重试 1 次（避开瞬时限流）
   const TRANSLATE_BATCH_SIZE = 20;
+  const TRANSLATE_MAX_PARALLEL = 3;  // 经验值：再多就会偶尔触发限流
+  const TRANSLATE_RETRY = 1;
   const handleTranslateAll = async () => {
     if (!song || isTranslating) return;
     setIsTranslating(true);
@@ -145,32 +150,65 @@ export default function LyricsPage() {
       const untranslated = song.lyrics.filter((l) => !l.translation);
       if (untranslated.length === 0) return;
 
-      // 切片：把 N 行分成 ceil(N/20) 个小批次
+      // 行数较多时给用户提示（约多少秒），避免他们以为卡死
+      // 粗略估算：每批 ~3s，最坏情况 batch 数 / MAX_PARALLEL × 3s
+      if (untranslated.length >= 60) {
+        const batchCount = Math.ceil(untranslated.length / TRANSLATE_BATCH_SIZE);
+        const waveCount = Math.ceil(batchCount / TRANSLATE_MAX_PARALLEL);
+        const estSeconds = waveCount * 3;
+        const ok = window.confirm(
+          `共 ${untranslated.length} 行未翻译，预计需要 ${estSeconds} 秒左右。\n\n是否继续？`
+        );
+        if (!ok) {
+          setIsTranslating(false);
+          return;
+        }
+      }
+
+      // 切片
       const batches: LyricLine[][] = [];
       for (let i = 0; i < untranslated.length; i += TRANSLATE_BATCH_SIZE) {
         batches.push(untranslated.slice(i, i + TRANSLATE_BATCH_SIZE));
       }
 
-      // 并行调所有批次（每批独立的 /api/translate 请求）
-      // 每批带原行数组的引用，翻译结果直接写回 line.translation
-      await Promise.all(
-        batches.map(async (batch) => {
-          const response = await fetch("/api/translate", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ lines: batch.map((l) => l.text) }),
-          });
-          if (!response.ok) throw new Error("翻译请求失败");
-          const data = await response.json();
-          if (!Array.isArray(data.translations)) {
-            throw new Error("翻译响应格式错误");
+      // 单批翻译 + 失败重试
+      const translateBatch = async (batch: LyricLine[]) => {
+        let lastErr: unknown;
+        for (let attempt = 0; attempt <= TRANSLATE_RETRY; attempt++) {
+          try {
+            const response = await fetch("/api/translate", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ lines: batch.map((l) => l.text) }),
+            });
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}`);
+            }
+            const data = await response.json();
+            if (!Array.isArray(data.translations)) {
+              throw new Error("响应格式错误");
+            }
+            // 写回翻译结果（line 是引用，直接修改即可）
+            batch.forEach((line, i) => {
+              line.translation = data.translations[i] || line.text;
+            });
+            return;
+          } catch (err) {
+            lastErr = err;
+            // 重试前等 800ms（避开瞬时限流）
+            if (attempt < TRANSLATE_RETRY) {
+              await new Promise((r) => setTimeout(r, 800));
+            }
           }
-          // 把翻译结果写回对应的行对象（line 是引用，直接修改即可）
-          batch.forEach((line, i) => {
-            line.translation = data.translations[i] || line.text;
-          });
-        })
-      );
+        }
+        throw lastErr;
+      };
+
+      // 分 wave：每 wave 最多 MAX_PARALLEL 个并发
+      for (let i = 0; i < batches.length; i += TRANSLATE_MAX_PARALLEL) {
+        const wave = batches.slice(i, i + TRANSLATE_MAX_PARALLEL);
+        await Promise.all(wave.map(translateBatch));
+      }
 
       setSong({ ...song, lyrics: [...song.lyrics] });
       await saveSong(song);
