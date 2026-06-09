@@ -84,7 +84,7 @@ export default function FavoritesPage() {
   }, [openMenuFolderId]);
 
   const loadAll = async () => {
-    const [favs, allFolders] = await Promise.all([getAllFavorites(), getAllFolders()]);
+    const [favs, allFolders] = await Promise.all([getAllFavorites(), getAllFolders("favorites")]);
     setFavorites(favs);
     setFolders(allFolders.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()));
   };
@@ -188,7 +188,7 @@ export default function FavoritesPage() {
 
   const handleConfirmDeleteFolder = async () => {
     if (!confirmDeleteFolderId) return;
-    await deleteFolder(confirmDeleteFolderId);
+    await deleteFolder(confirmDeleteFolderId, "favorites");
     setConfirmDeleteFolderId(null);
     await loadAll();
   };
@@ -471,6 +471,7 @@ export default function FavoritesPage() {
       <AnimatePresence>
         {movingFavorite && (
           <FolderPickerModal
+            scope="favorites"
             selectedFolderId={movingFavorite.folderId}
             onClose={() => setMovingFavorite(null)}
             onConfirm={handleMoveFavorite}
@@ -482,6 +483,7 @@ export default function FavoritesPage() {
       <AnimatePresence>
         {batchMoveOpen && (
           <FolderPickerModal
+            scope="favorites"
             selectedFolderId={undefined}
             onClose={() => setBatchMoveOpen(false)}
             onConfirm={handleBatchMove}
@@ -493,6 +495,7 @@ export default function FavoritesPage() {
       <AnimatePresence>
         {newFolderOpen && (
           <FolderPickerModal
+            scope="favorites"
             selectedFolderId={undefined}
             createOnly
             onClose={() => setNewFolderOpen(false)}

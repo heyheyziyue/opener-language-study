@@ -148,7 +148,7 @@ export default function DictationPage() {
 
   const loadRandomFavorites = async () => {
     setIsLoading(true);
-    const [all, allFolders] = await Promise.all([getAllFavorites(), getAllFolders()]);
+    const [all, allFolders] = await Promise.all([getAllFavorites(), getAllFolders("favorites")]);
     setFolders(allFolders);
     const filtered = selectedFolderFilter === null
       ? all
@@ -499,6 +499,7 @@ export default function DictationPage() {
       <AnimatePresence>
         {folderPickerOpen && (
           <FolderPickerModal
+            scope="favorites"
             selectedFolderId={selectedFolderFilter}
             showAllOption
             onClose={() => setFolderPickerOpen(false)}

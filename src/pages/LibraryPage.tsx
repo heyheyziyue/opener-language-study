@@ -81,7 +81,7 @@ export default function LibraryPage() {
   }, [openMenuFolderId]);
 
   const loadAll = async () => {
-    const [allSongs, allFolders] = await Promise.all([getAllSongs(), getAllFolders()]);
+    const [allSongs, allFolders] = await Promise.all([getAllSongs(), getAllFolders("songs")]);
     setSongs(allSongs);
     setFolders(
       allFolders.sort(
@@ -173,7 +173,7 @@ export default function LibraryPage() {
 
   const handleConfirmDeleteFolder = async () => {
     if (!confirmDeleteFolderId) return;
-    await deleteFolder(confirmDeleteFolderId);
+    await deleteFolder(confirmDeleteFolderId, "songs");
     setConfirmDeleteFolderId(null);
     await loadAll();
   };
@@ -497,6 +497,7 @@ export default function LibraryPage() {
       <AnimatePresence>
         {movingSong && (
           <FolderPickerModal
+            scope="songs"
             selectedFolderId={movingSong.folderId}
             onClose={() => setMovingSong(null)}
             onConfirm={handleMoveSong}
@@ -508,6 +509,7 @@ export default function LibraryPage() {
       <AnimatePresence>
         {batchMoveOpen && (
           <FolderPickerModal
+            scope="songs"
             selectedFolderId={undefined}
             onClose={() => setBatchMoveOpen(false)}
             onConfirm={handleBatchMove}
@@ -519,6 +521,7 @@ export default function LibraryPage() {
       <AnimatePresence>
         {newFolderOpen && (
           <FolderPickerModal
+            scope="songs"
             selectedFolderId={undefined}
             createOnly
             onClose={() => setNewFolderOpen(false)}

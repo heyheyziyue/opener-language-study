@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { getAllFolders, saveFolder, generateId } from "../lib/storage";
-import type { Folder } from "../lib/types";
+import type { Folder, FolderScope } from "../lib/types";
 import "./FolderPickerModal.css";
 
 interface FolderPickerModalProps {
+  /** 文件夹作用域："songs" = 歌曲夹(库页) / "favorites" = 收藏夹
+   *  决定弹窗内显示哪些文件夹，以及新建文件夹归属哪个作用域 */
+  scope: FolderScope;
   /** 当前选中文件夹 ID（null = 全部，仅 showAllOption=true 时；undefined = 未分类；string = 文件夹 ID） */
   selectedFolderId: string | null | undefined;
   /** 是否显示"全部"选项（用于听写页面的过滤器；false 时不显示，selectedFolderId 也不接受 null） */
@@ -19,6 +22,7 @@ interface FolderPickerModalProps {
 }
 
 export default function FolderPickerModal({
+  scope,
   selectedFolderId,
   showAllOption = false,
   createOnly = false,
@@ -36,7 +40,7 @@ export default function FolderPickerModal({
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const all = await getAllFolders();
+      const all = await getAllFolders(scope);
       if (!cancelled) {
         // 按创建时间正序排，旧文件夹在上
         setFolders(all.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()));
@@ -45,7 +49,7 @@ export default function FolderPickerModal({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [scope]);
 
   // 进入创建态时自动 focus 输入框
   useEffect(() => {
@@ -66,6 +70,7 @@ export default function FolderPickerModal({
         const folder: Folder = {
           id: generateId(),
           name,
+          scope,
           createdAt: new Date().toISOString(),
         };
         await saveFolder(folder);

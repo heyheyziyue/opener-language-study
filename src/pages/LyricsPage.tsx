@@ -1616,6 +1616,7 @@ export default function LyricsPage() {
       <AnimatePresence>
         {folderPickerOpen && (
           <FolderPickerModal
+            scope="favorites"
             selectedFolderId={undefined}
             onClose={() => {
               setFolderPickerOpen(false);

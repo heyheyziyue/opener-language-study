@@ -1,9 +1,9 @@
 import { openDB } from "idb";
 import type { IDBPDatabase } from "idb";
-import type { Song, FavoriteLine, LyricLine, Folder } from "./types";
+import type { Song, FavoriteLine, LyricLine, Folder, FolderScope } from "./types";
 
 const DB_NAME = "opener-db";
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 
 interface OpenerDB {
   songs: Song;
@@ -16,7 +16,7 @@ let dbPromise: Promise<IDBPDatabase<OpenerDB>> | null = null;
 function getDb() {
   if (!dbPromise) {
     dbPromise = openDB<OpenerDB>(DB_NAME, DB_VERSION, {
-      upgrade(db, oldVersion) {
+      async upgrade(db, oldVersion, _newVersion, transaction) {
         // v1: songs + favorites
         if (oldVersion < 1) {
           if (!db.objectStoreNames.contains("songs")) {
@@ -27,10 +27,24 @@ function getDb() {
             store.createIndex("by-song", "songId");
           }
         }
-        // v2: folders
+        // v2: folders（无 scope 字段）
         if (oldVersion < 2) {
           if (!db.objectStoreNames.contains("folders")) {
             db.createObjectStore("folders", { keyPath: "id" });
+          }
+        }
+        // v3: folders 加 scope 字段，把 v2 时期的文件夹回填到 "favorites" 作用域
+        // （v2 时期功能只服务于收藏夹，库页 v2.2.19 才加）
+        if (oldVersion < 3) {
+          if (db.objectStoreNames.contains("folders")) {
+            const store = transaction.objectStore("folders");
+            const all = await store.getAll();
+            for (const f of all) {
+              if (!(f as Folder).scope) {
+                (f as Folder).scope = "favorites";
+                await store.put(f);
+              }
+            }
           }
         }
       },
@@ -125,9 +139,10 @@ export async function updateFavoritePractice(id: string, practiceCount: number, 
   }
 }
 
-// ===== Folders (v2) =====
-// 注意：folderId 在 FavoriteLine 上是 optional 字段，
-// 已存在的 v1 数据没有 folderId，UI 渲染时归到"未分类"组
+// ===== Folders (v2 + v3 scope) =====
+// v2: 加 folders 仓库（无 scope）
+// v3: Folder 加 scope 字段（'songs' | 'favorites'），歌曲夹和收藏夹完全隔离
+// v1 时期的收藏没有 folderId 字段，UI 渲染时归到"未分类"组
 
 export async function saveFolder(folder: Folder) {
   const db = await getDb();
@@ -135,9 +150,10 @@ export async function saveFolder(folder: Folder) {
   return folder;
 }
 
-export async function getAllFolders(): Promise<Folder[]> {
+export async function getAllFolders(scope: FolderScope): Promise<Folder[]> {
   const db = await getDb();
-  return db.getAll("folders");
+  const all = await db.getAll("folders");
+  return all.filter((f) => f.scope === scope);
 }
 
 export async function renameFolder(id: string, newName: string) {
@@ -150,30 +166,31 @@ export async function renameFolder(id: string, newName: string) {
   return folder;
 }
 
-// 删除文件夹：级联清除组内收藏和歌曲的 folderId（→ 自动归到"未分类"）
-export async function deleteFolder(id: string) {
+// 删除文件夹：只级联清除同 scope 下的引用（歌曲夹只清歌曲，收藏夹只清收藏）
+export async function deleteFolder(id: string, scope: FolderScope) {
   const db = await getDb();
   await db.delete("folders", id);
-  // 收藏：folderId 置为 undefined
-  const favTx = db.transaction("favorites", "readwrite");
-  const allFavs = await favTx.objectStore("favorites").getAll();
-  for (const fav of allFavs) {
-    if (fav.folderId === id) {
-      fav.folderId = undefined;
-      await favTx.objectStore("favorites").put(fav);
+  if (scope === "favorites") {
+    const tx = db.transaction("favorites", "readwrite");
+    const allFavs = await tx.objectStore("favorites").getAll();
+    for (const fav of allFavs) {
+      if (fav.folderId === id) {
+        fav.folderId = undefined;
+        await tx.objectStore("favorites").put(fav);
+      }
     }
-  }
-  await favTx.done;
-  // 歌曲：folderId 置为 undefined
-  const songTx = db.transaction("songs", "readwrite");
-  const allSongs = await songTx.objectStore("songs").getAll();
-  for (const song of allSongs) {
-    if (song.folderId === id) {
-      song.folderId = undefined;
-      await songTx.objectStore("songs").put(song);
+    await tx.done;
+  } else {
+    const tx = db.transaction("songs", "readwrite");
+    const allSongs = await tx.objectStore("songs").getAll();
+    for (const song of allSongs) {
+      if (song.folderId === id) {
+        song.folderId = undefined;
+        await tx.objectStore("songs").put(song);
+      }
     }
+    await tx.done;
   }
-  await songTx.done;
 }
 
 // 移动单条收藏到指定文件夹(传入 undefined = 移到"未分类")

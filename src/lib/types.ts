@@ -33,10 +33,13 @@ export interface FavoriteLine {
   order?: number;     // 文件夹内手动排序序号;undefined = 用 createdAt 排序
 }
 
+export type FolderScope = "songs" | "favorites";
+
 export interface Folder {
   id: string;
   name: string;
   createdAt: string;
+  scope: FolderScope;   // 区分"歌曲夹"(LibraryPage) vs "收藏夹"(FavoritesPage)
 }
 
 export interface ChatMessage {
