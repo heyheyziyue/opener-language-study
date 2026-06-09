@@ -133,7 +133,10 @@ export default function LyricsPage() {
     }
   };
 
-  // 一键翻译全部歌词（1 次 LLM 调用，~3s 搞定整首歌）
+  // 一键翻译全部歌词
+  // 为什么切片并行：EdgeOne 函数 ~30s 超时，行数多时单次批量调用会超时
+  // 每批 20 行 ≈ 2-3s，并行后整首歌 ~3-5s 完成
+  const TRANSLATE_BATCH_SIZE = 20;
   const handleTranslateAll = async () => {
     if (!song || isTranslating) return;
     setIsTranslating(true);
@@ -142,22 +145,33 @@ export default function LyricsPage() {
       const untranslated = song.lyrics.filter((l) => !l.translation);
       if (untranslated.length === 0) return;
 
-      // 1 次批量调用
-      const response = await fetch("/api/translate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lines: untranslated.map((l) => l.text) }),
-      });
-      if (!response.ok) throw new Error("翻译请求失败");
-      const data = await response.json();
-      if (!Array.isArray(data.translations)) {
-        throw new Error("翻译响应格式错误");
+      // 切片：把 N 行分成 ceil(N/20) 个小批次
+      const batches: LyricLine[][] = [];
+      for (let i = 0; i < untranslated.length; i += TRANSLATE_BATCH_SIZE) {
+        batches.push(untranslated.slice(i, i + TRANSLATE_BATCH_SIZE));
       }
 
-      // 把翻译结果填回对应的行
-      untranslated.forEach((line, i) => {
-        line.translation = data.translations[i] || line.text;
-      });
+      // 并行调所有批次（每批独立的 /api/translate 请求）
+      // 每批带原行数组的引用，翻译结果直接写回 line.translation
+      await Promise.all(
+        batches.map(async (batch) => {
+          const response = await fetch("/api/translate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ lines: batch.map((l) => l.text) }),
+          });
+          if (!response.ok) throw new Error("翻译请求失败");
+          const data = await response.json();
+          if (!Array.isArray(data.translations)) {
+            throw new Error("翻译响应格式错误");
+          }
+          // 把翻译结果写回对应的行对象（line 是引用，直接修改即可）
+          batch.forEach((line, i) => {
+            line.translation = data.translations[i] || line.text;
+          });
+        })
+      );
+
       setSong({ ...song, lyrics: [...song.lyrics] });
       await saveSong(song);
     } catch (err) {
