@@ -109,13 +109,15 @@ async function callLLM({ messages, apiKey, timeoutMs }) {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`,
       },
-      // 预编码 UTF-8 Buffer，避免 Node.js fetch 中文 ByteString bug
+      // 预编码 UTF-8，避免 V8 Isolates（EdgeOne Pages 运行时）的中文 ByteString 问题
+      // 注：不能用 Buffer.from()——Isolates 没 Node.js 的 Buffer 全局对象
+      // 用 TextEncoder（Isolates + Node.js + 浏览器都支持）
       // 注意：MiniMax chatcompletion_pro 是老格式 API，必填：
       //   - model: 模型名
       //   - bot_setting: 机器人人设（数组）
       //   - reply_constraints: 谁回复（sender_type/sender_name）
       //   - messages: 每条要有 sender_type + sender_name + text（不是 role/content）
-      body: Buffer.from(JSON.stringify({
+      body: new TextEncoder().encode(JSON.stringify({
         model: 'MiniMax-Text-01',
         messages: convertMessages(messages),
         bot_setting: [
@@ -130,7 +132,7 @@ async function callLLM({ messages, apiKey, timeoutMs }) {
         },
         temperature: 0.3,
         tokens_to_generate: 4096,
-      }), 'utf-8'),
+      })),
       signal: controller.signal,
     });
     if (!res.ok) {

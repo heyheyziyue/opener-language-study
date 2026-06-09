@@ -63,9 +63,11 @@ async function callMiniMaxApi({ endpoint, body, apiKey, timeoutMs, contextLabel 
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`,
       },
-      // 关键：预编码为 UTF-8 Buffer，避免 Node.js fetch 内部把含中文的 body 字符串
-      // 当作 Latin-1 ByteString 转换时报 "Cannot convert argument to a ByteString"。
-      body: Buffer.from(JSON.stringify(body), 'utf-8'),
+      // 关键：预编码为 UTF-8，避免 fetch 把含中文的 body 字符串当作
+      // Latin-1 ByteString 转换时报错。
+      // 用 TextEncoder 而不是 Buffer.from——EdgeOne Pages Functions 跑在 V8 Isolates，
+      // 没有 Node.js 的 Buffer 全局对象，但 TextEncoder 在 Isolates/Node/浏览器都支持。
+      body: new TextEncoder().encode(JSON.stringify(body)),
     },
     timeoutMs
   );
