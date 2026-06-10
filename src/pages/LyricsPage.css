@@ -390,16 +390,15 @@
 /* Lyric Item */
 .lyric-item {
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md);
+  display: block;
+  /* 左侧 72px 给收藏/截取按钮，右侧 16px 默认间距（clip-badge 出现时由 padding-right 扩展） */
+  padding: var(--spacing-md) 16px var(--spacing-md) 72px;
   background: var(--bg-page);
   border-radius: 12px;
   cursor: pointer;
   transition: box-shadow 0.2s ease, background 0.2s ease;
-  flex-wrap: wrap;
+  /* 改为 block 布局后，line-text 用 width:100% + text-align:center 居中，
+     侧边按钮/装饰绝对定位不影响文本中心位置 */
 }
 
 .lyric-item:hover {
@@ -504,7 +503,9 @@
 }
 
 .line-text {
-  flex: 1;
+  /* 不用 flex:1，让文本占据整行宽度，再用 text-align:center 居中 */
+  display: block;
+  width: 100%;
   font-size: 17px;
   line-height: 1.5;
   color: var(--text-primary);
@@ -590,6 +591,34 @@
 .lyric-item.selected-line .clip-badge {
   color: #fff;
   font-weight: inherit;
+}
+
+/* ===== 侧边装饰绝对定位 ===== */
+/* 让 .line-text 占据整行宽度并居中，侧边按钮/装饰用绝对定位悬挂在左右两侧，
+   不占据 flow 空间，从而无论左侧按钮和右侧装饰宽度如何变化，文本始终居中 */
+.favorite-btn,
+.clip-btn,
+.select-checkbox,
+.has-note,
+.clip-badge {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+.favorite-btn,
+.select-checkbox {
+  left: var(--spacing-md);
+}
+
+.clip-btn {
+  left: calc(var(--spacing-md) + 32px);  /* 收藏按钮右侧 + 4px 间隙 */
+}
+
+.has-note,
+.clip-badge {
+  right: var(--spacing-md);
 }
 
 /* .finish-clip-btn 样式已统一为 .btn-text.active（见 index.css） */
@@ -988,15 +1017,17 @@
 
 /* Translation row — 独立翻译行，样式与歌词行联动但不可交互 */
 .translation-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 4px 16px 8px 16px;
+  position: relative;
+  display: block;
+  /* 右侧 80px 给"查看/编辑"按钮，避免与文本重叠 */
+  padding: 4px 80px 8px 16px;
   background: transparent;
   border-radius: 0;
   cursor: default;
   user-select: none;
   transition: background 0.2s, color 0.2s;
+  /* 改为 block 布局后，line-text 用 width:100% + text-align:center 居中，
+     操作按钮绝对定位不影响文本中心位置 */
 }
 
 /* 编辑态：占据整行，textarea 可输入 */
@@ -1008,7 +1039,9 @@
 }
 
 .translation-row .line-text {
-  flex: 1;
+  /* 不用 flex:1，让翻译文本占据整行宽度居中 */
+  display: block;
+  width: 100%;
   text-align: center;
   font-style: italic;
   color: var(--text-secondary);
@@ -1057,12 +1090,17 @@
 
 /* ===== 翻译行操作按钮（隐藏 / 编辑） ===== */
 .translation-row-actions {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   align-items: center;
   gap: 4px;
   flex-shrink: 0;
   opacity: 0.55;
   transition: opacity 0.15s;
+  z-index: 1;
 }
 
 .translation-row:hover .translation-row-actions {
